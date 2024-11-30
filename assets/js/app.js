@@ -7,3 +7,8 @@ $(document).ready(function () {
     $(this).find(".dropdown-menu").slideUp(200);
   });
 });
+
+// -- Auth Page
+document.querySelector(".img__btn").addEventListener("click", function () {
+  document.querySelector(".cont").classList.toggle("s--signup");
+});

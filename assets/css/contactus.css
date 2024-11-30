@@ -166,8 +166,10 @@ form h3 {
 }
 
 /* Input field wrapper with icons */
-.input-icon-wrapper {
-  position: relative;
+
+.input-icon-wrapper textarea {
+  display: block;
+  margin-top: 100px;
 }
 
 .form-icon {
