@@ -55,7 +55,7 @@
         <div class="sidebar-logo">
           <!-- Logo Header -->
           <div class="logo-header" data-background-color="dark">
-            <a href="index.html" class="logo">
+            <a href="index.php" class="logo">
               <h4 class="text-light">AUS Sport Club</h4>
             </a>
             <div class="nav-toggle">
@@ -76,28 +76,28 @@
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
               <li class="nav-item active">
-                <a href="./index.html">
+                <a href="./index.php">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
                 </a>
               </li>
 
               <li class="nav-item">
-                <a href="./events.html">
+                <a href="./events.phpindex.php">
                   <i class="fas fa-calendar-alt"></i>
                   <p>Events</p>
                 </a>
               </li>
 
               <li class="nav-item">
-                <a href="./members.html">
+                <a href="./members.phpindex.php">
                   <i class="fas fa-users"></i>
                   <p>Members</p>
                 </a>
               </li>
 
               <li class="nav-item">
-                <a href="./messages.html">
+                <a href="./messages.phpindex.php">
                   <i class="fas fa-envelope"></i>
                   <p>Messages</p>
                 </a>
@@ -113,7 +113,7 @@
           <div class="main-header-logo">
             <!-- Logo Header -->
             <div class="logo-header" data-background-color="dark">
-              <a href="index.html" class="logo">
+              <a href="index.php" class="logo">
                 <img
                   src="assets/img/kaiadmin/logo_light.svg"
                   alt="navbar brand"

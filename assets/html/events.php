@@ -200,7 +200,7 @@
                 <i class="fas fa-map-marker-alt"></i> National Sports Arena,
                 City Center
               </p>
-              <a href="#" class="btn custom-btn-lg">Learn More</a>
+              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
             </div>
           </div>
         </div>
@@ -218,7 +218,7 @@
               <p class="event-location">
                 <i class="fas fa-map-marker-alt"></i> Downtown Stadium
               </p>
-              <a href="#" class="btn custom-btn-lg">Learn More</a>
+              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
             </div>
           </div>
         </div>
@@ -237,7 +237,7 @@
                 <i class="fas fa-map-marker-alt"></i> Basketball Arena, West
                 End
               </p>
-              <a href="#" class="btn custom-btn-lg">Learn More</a>
+              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
             </div>
           </div>
         </div>
@@ -255,7 +255,7 @@
               <p class="event-location">
                 <i class="fas fa-map-marker-alt"></i> City Stadium, East End
               </p>
-              <a href="#" class="btn custom-btn-lg">Learn More</a>
+              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
             </div>
           </div>
         </div>
