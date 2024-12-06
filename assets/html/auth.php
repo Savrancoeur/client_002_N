@@ -1,105 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AUS Sport Club</title>
 
-    <!-- AOS Library CSS Link -->
-    <link rel="stylesheet" href="../../dist/libraries/aos/aos.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AUS Sport Club</title>
 
-    <!-- Bootstrap Library CSS Link -->
-    <link
-      rel="stylesheet"
-      href="../../dist/libraries/bootstrap-5.0.2/css/bootstrap.min.css"
-    />
+  <!-- Libraries CSS Links -->
+  <link rel="stylesheet" href="../../dist/libraries/aos/aos.css" />
+  <link rel="stylesheet" href="../../dist/libraries/bootstrap-5.0.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../../dist/libraries/fontawesome-free-6.7.1-web/css/all.min.css" />
+  <link rel="stylesheet" href="../../dist/libraries/jquery-ui/jquery-ui.css" />
 
-    <!-- Font Awesome CSS Link -->
-    <link
-      rel="stylesheet"
-      href="../../dist/libraries/fontawesome-free-6.7.1-web/css/all.min.css"
-    />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" type="text/css" href="../css/auth.css" />
+</head>
 
-    <!-- j-Query Ui CSS Link -->
-    <link
-      rel="stylesheet"
-      href="../../dist/libraries/jquery-ui/jquery-ui.css"
-    />
-
-    <!-- Custom CSS Link -->
-    <link rel="stylesheet" type="text/css" href="../css/style.css" />
-    <link rel="stylesheet" type="text/css" href="../css/auth.css" />
-  </head>
-  <body>
-    <!-- Sign in/ Sign up Section -->
-    <form action="" method="" class="cont">
-      <div class="form sign-in">
-        <h2>Welcome to AUS Sport Club!</h2>
-        <label>
-          <span>Email</span>
-          <input type="email" />
-        </label>
-        <label>
-          <span>Password</span>
-          <input type="password" />
-        </label>
-        <p class="forgot-pass">Forgot password?</p>
-        <button type="button" class="submit">Sign In</button>
+<body>
+  <!-- Authentication Section -->
+  <div class="auth-container">
+    <!-- Background Image with Overlay -->
+    <div class="auth-overlay">
+      <div class="overlay-content">
+        <h1>AUS Sport Club</h1>
+        <p>Join the best sports community today!</p>
       </div>
+    </div>
 
-      <div class="sub-cont">
-        <div class="img">
-          <div class="img__text m--up">
-            <h3>Don't have an account? Please Sign up!</h3>
-          </div>
-          <div class="img__text m--in">
-            <h3>If you already have an account, just sign in.</h3>
-          </div>
-          <div class="img__btn">
-            <span class="m--up">Sign Up</span>
-            <span class="m--in">Sign In</span>
-          </div>
-        </div>
-
-        <div class="form sign-up">
-          <h2>Register your Account!</h2>
-          <label>
-            <span>Name</span>
-            <input type="text" />
-          </label>
-          <label>
-            <span>Email</span>
-            <input type="email" />
-          </label>
-          <label>
-            <span>Password</span>
-            <input type="password" />
-          </label>
-          <button type="button" class="submit">Sign Up</button>
-        </div>
-      </div>
+    <!-- Sign In Form -->
+    <form id="signInForm" class="auth-form active" method="POST" action="#">
+      <h2>Welcome Back!</h2>
+      <label>
+        <span>Email</span>
+        <input type="email" name="email" required />
+      </label>
+      <label>
+        <span>Password</span>
+        <input type="password" name="password" required />
+      </label>
+      <p class="forgot-pass">Forgot password?</p>
+      <button type="submit" class="btn btn-primary">Sign In</button>
+      <p class="switch-form">
+        Don't have an account? <a href="#" id="showSignUp">Sign Up</a>
+      </p>
     </form>
-    <!-- Sign in/ Sign up Section -->
 
-    <!-- AOS Library JS Link -->
-    <script src="../../dist/libraries/aos/aos.js"></script>
-    <script>
-      AOS.init();
-    </script>
+    <!-- Sign Up Form -->
+    <form id="signUpForm" class="auth-form" method="POST" action="#">
+      <h2>Join Us!</h2>
+      <label>
+        <span>Name</span>
+        <input type="text" name="name" required />
+      </label>
+      <label>
+        <span>Email</span>
+        <input type="email" name="email" required />
+      </label>
+      <label>
+        <span>Password</span>
+        <input type="password" name="password" required />
+      </label>
+      <button type="submit" class="btn btn-success">Sign Up</button>
+      <p class="switch-form">
+        Already have an account? <a href="#" id="showSignIn">Sign In</a>
+      </p>
+    </form>
+  </div>
 
-    <!-- Font Awesome Library JS Link -->
-    <script src="../../dist/libraries/fontawesome-free-6.7.1-web/js/all.min.js"></script>
+  <!-- AOS Library JS -->
+  <script src="../../dist/libraries/aos/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
 
-    <!-- Bootstrap Library JS Link -->
-    <script src="../../dist/libraries/bootstrap-5.0.2/js/bootstrap.min.js"></script>
+  <!-- Libraries JS Links -->
+  <script src="../../dist/libraries/bootstrap-5.0.2/js/bootstrap.min.js"></script>
+  <script src="../../dist/libraries/jquery-ui/jquery-ui.js"></script>
+  <script src="../../dist/libraries/jquery/jquery-3.7.1.min.js"></script>
 
-    <!-- j-Query Ui JS Link -->
-    <script src="../../dist/libraries/jquery-ui/jquery-ui.js"></script>
+  <!-- Toggle Forms -->
+  <script>
+    document.getElementById("showSignUp").addEventListener("click", function(e) {
+      e.preventDefault();
+      document.getElementById("signInForm").classList.remove("active");
+      document.getElementById("signUpForm").classList.add("active");
+    });
 
-    <!-- jQuery JS Link -->
-    <script src="../../dist/libraries/jquery/jquery-3.7.1.min.js"></script>
+    document.getElementById("showSignIn").addEventListener("click", function(e) {
+      e.preventDefault();
+      document.getElementById("signUpForm").classList.remove("active");
+      document.getElementById("signInForm").classList.add("active");
+    });
+  </script>
+</body>
 
-    <!-- Custom JS Link -->
-    <script src="../js/app.js"></script>
-  </body>
 </html>
