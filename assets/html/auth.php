@@ -32,19 +32,19 @@
   </head>
   <body>
     <!-- Sign in/ Sign up Section -->
-    <form action="" method="" class="cont">
+    <form action="signin.php" method="POST" class="cont">
       <div class="form sign-in">
         <h2>Welcome to AUS Sport Club!</h2>
         <label>
           <span>Email</span>
-          <input type="email" />
+          <input type="email" name="email" placeholder="Enter your email.."/>
         </label>
         <label>
           <span>Password</span>
-          <input type="password" />
+          <input type="password" name="password" placeholder="Enter your password"/>
         </label>
         <p class="forgot-pass">Forgot password?</p>
-        <button type="button" class="submit">Sign In</button>
+        <button type="Submit" class="submit">Sign In</button>
       </div>
 
       <div class="sub-cont">
