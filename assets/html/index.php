@@ -60,7 +60,7 @@
         <!-- Login/Register/Profile -->
         <ul class="navbar-nav ms-auto d-flex align-items-center">
           <li class="nav-item">
-            <a class="nav-link btn-login" href="#login">Login</a>
+            <a class="nav-link btn-login" href="">Login</a>
           </li>
           <li class="nav-item">
             <a class="nav-link btn-register" href="#register">Register</a>
