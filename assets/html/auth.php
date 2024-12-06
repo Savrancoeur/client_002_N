@@ -1,3 +1,29 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if(!isset($_SESSION)){
+    session_start();
+}
+
+$errormessage = null;
+
+if(isset($_SESSION['password_not_strong'])){
+    $errormessage = $_SESSION['password_not_strong'];
+}elseif(isset($_SESSION['login_error'])){
+    $errormessage = $_SESSION['login_error'];
+}
+
+
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,6 +40,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" type="text/css" href="../css/auth.css" />
+  <link rel="stylesheet" type="text/css" href="../css/toast.css" />
 </head>
 
 <body>
@@ -28,44 +55,65 @@
     </div>
 
     <!-- Sign In Form -->
-    <form id="signInForm" class="auth-form active" method="POST" action="#">
+    <form id="signInForm" class="auth-form active" method="POST" action="signin.php">
       <h2>Welcome Back!</h2>
       <label>
         <span>Email</span>
-        <input type="email" name="email" required />
+        <input type="email" name="email" placeholder="Enter your email..." required />
       </label>
       <label>
         <span>Password</span>
-        <input type="password" name="password" required />
+        <input type="password" name="password" placeholder="Enter your password..." required />
       </label>
       <p class="forgot-pass">Forgot password?</p>
-      <button type="submit" class="btn btn-primary">Sign In</button>
+      <button type="submit" name="signin_btn" class="btn btn-primary">Sign In</button>
       <p class="switch-form">
         Don't have an account? <a href="#" id="showSignUp">Sign Up</a>
       </p>
     </form>
 
     <!-- Sign Up Form -->
-    <form id="signUpForm" class="auth-form" method="POST" action="#">
+    <form id="signUpForm" class="auth-form" method="POST" action="signup.php">
       <h2>Join Us!</h2>
       <label>
         <span>Name</span>
-        <input type="text" name="name" required />
+        <input type="text" name="name" placeholder="Enter your name..." required />
       </label>
       <label>
         <span>Email</span>
-        <input type="email" name="email" required />
+        <input type="email" name="email" placeholder="Enter your email..." required />
       </label>
       <label>
         <span>Password</span>
-        <input type="password" name="password" required />
+        <input type="password" name="password" placeholder="Enter your password..." required />
       </label>
-      <button type="submit" class="btn btn-success">Sign Up</button>
+      <button type="submit" name="signup_btn" class="btn btn-success">Sign Up</button>
       <p class="switch-form">
         Already have an account? <a href="#" id="showSignIn">Sign In</a>
       </p>
     </form>
   </div>
+
+  <?php if($errormessage != null) {?>
+      <div class="toasts actives">
+          <div class="toast-contents">
+              <i class="fas fa-times bg-danger check"></i>
+
+              <div class="message">
+                  <span class="text text-1">Failed</span>
+                  <span class="text text-2"><?php echo $errormessage ?></span>
+              </div>
+          </div>
+          <i class="fas fa-times closes"></i>
+
+          <div class="progress actives"></div>
+      </div>
+      <?php
+      unset($_SESSION['password_not_strong']);
+      unset($_SESSION['login_error']);
+      $errormessage = '';
+  }
+  ?>
 
   <!-- AOS Library JS -->
   <script src="../../dist/libraries/aos/aos.js"></script>
@@ -77,6 +125,8 @@
   <script src="../../dist/libraries/bootstrap-5.0.2/js/bootstrap.min.js"></script>
   <script src="../../dist/libraries/jquery-ui/jquery-ui.js"></script>
   <script src="../../dist/libraries/jquery/jquery-3.7.1.min.js"></script>
+  <script src="../../dist/libraries/fontawesome-free-6.7.1-web/js/all.min.js"></script>
+  <script src="./../js/toast.js"></script>
 
   <!-- Toggle Forms -->
   <script>

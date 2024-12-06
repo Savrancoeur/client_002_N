@@ -4,18 +4,27 @@
 ini_set("display_errors", 1);
 
 // call dbconnection file to use
-require_once("dbconnect.php");
+require_once("databaseconnection.php");
+
+// creat session if not created
+if(!isset($_SESSION)){
+    session_start();
+}
 
 // check if the data from register form are sent.
-if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['register'])) {
+if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['signup_btn'])) {
     $name = text_check($_POST['name']);
     $email = text_check($_POST['email']);
     $password = text_check($_POST['password']);
 
+    echo $name . "<br>";
+    echo $email . "<br>";
+    echo $password . "<br>";
+
 
     // check the password is strong ors not
     if (password_check($password)) {
-        $getpassword = md5($password);
+        $encrypt_password = md5($password);
         try {
             $conn = connect();
             // perpare the sql statement to insert data into database
@@ -24,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['register'])) {
             // use bindParam() method for security
             $stmt->bindParam(":name", $name);
             $stmt->bindParam(":email", $email);
-            $stmt->bindParam(":password", $password);
+            $stmt->bindParam(":password", $encrypt_password);
 
             if ($stmt->execute()) {
                 // session store 
@@ -47,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['register'])) {
         $conn = null;
     } else {
         // session store
-        $_SESSION['not_strong'] = "Your Password is not strong, Please try again";
+        $_SESSION['password_not_strong'] = "Your Password is not strong, Please try again";
         // redirect to register page
         header("Location:auth.php");
     }

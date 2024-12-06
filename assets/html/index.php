@@ -1,3 +1,25 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if(!isset($_SESSION)){
+    session_start();
+}
+
+
+if(isset($_SESSION['email'])){
+  echo $_SESSION['email'];
+}
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -60,10 +82,10 @@
         <!-- Login/Register/Profile -->
         <ul class="navbar-nav ms-auto d-flex align-items-center">
           <li class="nav-item">
-            <a class="nav-link btn-login" href="">Login</a>
+            <a class="nav-link btn-login" href="auth.php">Login</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link btn-register" href="#register">Register</a>
+            <a class="nav-link btn-register" href="auth.php">Register</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
@@ -73,7 +95,7 @@
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
               <li><a class="dropdown-item" href="#profile">Profile</a></li>
               <li><a class="dropdown-item" href="#settings">Settings</a></li>
-              <li><a class="dropdown-item" href="#logout">Logout</a></li>
+              <li><a class="dropdown-item" href="exit.php">Logout</a></li>
             </ul>
           </li>
         </ul>
