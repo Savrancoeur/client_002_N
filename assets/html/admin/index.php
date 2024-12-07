@@ -74,7 +74,7 @@ function totalmembers()
   }
 }
 
-function getunreadcount()
+function get_unread_message_count()
 {
   try {
     $conn = connect();
@@ -91,7 +91,7 @@ function getunreadcount()
 $total_events = totalevents();
 $total_members = totalmembers();
 $total_messages = totalmessagecount();
-$unread_message_count = getunreadcount();
+$unread_message_count = get_unread_message_count();
 
 //echo $totalevents;
 //echo $totalmembers;
@@ -284,11 +284,11 @@ $unread_message_count = getunreadcount();
                   href="messages.php"
                   id="notifDropdown">
                   <i class="fa fa-message"></i>
-                  <span class="notification">
-                    <?php if ($unread_message_count > 0) {
+                  <?php if ($unread_message_count > 0) {
+                      echo '<span class="notification">';
                       echo $unread_message_count;
+                      echo '</span>';
                     } ?>
-                  </span>
                 </a>
               </li>
 
