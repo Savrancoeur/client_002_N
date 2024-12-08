@@ -1,3 +1,27 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+$noti_message = "";
+
+if (isset($_SESSION['message_sending_success'])) {
+  $noti_message = $_SESSION['message_sending_success'];
+}
+
+// echo $noti_message;
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,6 +47,7 @@
   <link rel="stylesheet" type="text/css" href="../css/navbar.css" />
   <link rel="stylesheet" type="text/css" href="../css/footer.css" />
   <link rel="stylesheet" type="text/css" href="../css/contactus.css" />
+  <link rel="stylesheet" type="text/css" href="../css/toast.css" />
 </head>
 
 <body>
@@ -243,7 +268,7 @@
             <div class="contact-bg-overlay"></div>
 
             <!-- Contact Form Content -->
-            <form id="contactForm" action="#" method="POST"
+            <form id="contactForm" action="sent_message_function.php" method="POST"
               class="position-relative p-4 rounded text-light">
               <h3 class="text-center mb-4">Get in Touch</h3>
               <div class="form-row mb-4">
@@ -252,7 +277,7 @@
                   <label for="name" class="form-label">Your Name</label>
                   <div class="input-icon-wrapper">
                     <i class="fas fa-user-circle form-icon"></i>
-                    <input type="text" class="form-control" id="name" placeholder="Enter your name"
+                    <input type="text" name="message_username" class="form-control" id="name" placeholder="Enter your name"
                       required />
                   </div>
                 </div>
@@ -261,7 +286,7 @@
                   <label for="email" class="form-label">Your Email</label>
                   <div class="input-icon-wrapper">
                     <i class="fas fa-envelope form-icon"></i>
-                    <input type="email" class="form-control" id="email"
+                    <input type="email" name="message_useremail" class="form-control" id="email"
                       placeholder="Enter your email" required />
                   </div>
                 </div>
@@ -273,14 +298,14 @@
                   <label for="message" class="form-label">Your Message</label>
                   <div class="input-icon-wrapper">
                     <i class="fas fa-comment-dots form-icon"></i>
-                    <textarea class="form-control" id="message" rows="3"
+                    <textarea class="form-control" name="message_content" id="message" rows="3"
                       placeholder="Enter your message" required></textarea>
                   </div>
                 </div>
               </div>
 
               <!-- Submit Button -->
-              <button type="submit" class="btn button-3 btn-lg btn-block shadow-lg">
+              <button type="submit" name="contact_message_sent" class="btn button-3 btn-lg btn-block shadow-lg">
                 Send Message
               </button>
             </form>
@@ -341,6 +366,26 @@
   </footer>
   <!-- Footer Section -->
 
+  <?php if ($noti_message != null) { ?>
+    <div class="toasts actives">
+      <div class="toast-contents">
+        <i class="fas fa-check check"></i>
+
+        <div class="message">
+          <span class="text text-1">Success</span>
+          <span class="text text-2"><?php echo $noti_message ?></span>
+        </div>
+      </div>
+      <i class="fas fa-times closes"></i>
+
+      <div class="progress actives"></div>
+    </div>
+  <?php
+    unset($_SESSION['message_sending_success']);
+    $noti_message = '';
+  }
+  ?>
+
   <!-- AOS Library JS Link -->
   <script src="../../dist/libraries/aos/aos.js"></script>
   <script>
@@ -361,6 +406,7 @@
 
   <!-- Custom JS Link -->
   <script src="../js/app.js"></script>
+  <script src="../js/toast.js"></script>
 </body>
 
 </html>
