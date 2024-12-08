@@ -137,4 +137,14 @@
     width: 40px;
     height: 40px;
   }
+
+  .navbar-nav.ms-auto {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .navbar-nav .nav-item a {
+    text-align: center;
+  }
 }
