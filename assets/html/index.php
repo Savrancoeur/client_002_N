@@ -116,7 +116,6 @@ $locations = get_unique_event_locations();
 // var_dump($showevents);
 
 
-
 ?>
 
 

@@ -1,3 +1,180 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+if (!isset($_SESSION['email'])) {
+  header("Location:auth.php");
+}
+
+// making default time zone
+date_default_timezone_set("Asia/Yangon");
+
+$date = date("Y-m-d");
+
+$user_data = null;
+$noti_message = null;
+$skill_array = ['beginner', 'amateur', 'professional'];
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
+  $id = $_POST['id'];
+  $name = $_POST['name'];
+  $email = $_POST['email'];
+  $phone = $_POST['phone'];
+  $dob = $_POST['dob'];
+  $skilllevel = $_POST['skill_level'];
+  $prefersport = $_POST['prefer_sport'];
+
+
+  try {
+    $conn = connect();
+    $sql = "UPDATE users SET name=?, email=?, phonenumber=?, dob=?, prefersport=?, skilllevel=? WHERE id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$name, $email, $phone, $dob, $prefersport, $skilllevel, $id]);
+    $_SESSION['profile_update'] = "Your profile has been updated";
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['event_id'])) {
+  $_SESSION['event_id'] = $_GET['event_id'];
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['event_register'])) {
+  $user_id = $_POST['user_id'];
+  $event_id = $_POST['event_id'];
+  $count = $_POST["count"];
+  if (checkcount($event_id, $count)) {
+    try {
+      $conn = connect();
+      $sql = "UPDATE events SET remainlimit=remainlimit-? WHERE id=?";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([$count, $event_id]);
+
+      $sql = "INSERT INTO eventregistrations (users_id,events_id,count,date) VALUES(?,?,?,?)";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([$user_id, $event_id, $count, $date]);
+
+      $_SESSION['register_success'] = "Your registration has been completed";
+    } catch (PDOException $e) {
+      echo $e->getMessage();
+    }
+  } else {
+    $_SESSION['count-invalid'] = "Your participant count is greater than remain limit.";
+  }
+}
+
+function checkcount($eventid, $count)
+{
+  try {
+    $conn = connect();
+    $sql = "SELECT * FROM events WHERE id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$eventid]);
+    $event = $stmt->fetch();
+    $remaincount = $event["remainlimit"];
+    if ($count <= $remaincount) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_user_by_email($email)
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email=?");
+    $stmt->execute([$email]);
+    return $stmt->fetch();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_event_by_date($date)
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT * FROM events WHERE duedate >= ? AND remainlimit <> ? AND status=?");
+    $stmt->execute([$date, 0,'upcoming']);
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_event($eventid)
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT * FROM events WHERE id=?");
+    $stmt->execute([$eventid]);
+    $event = $stmt->fetch();
+    return $event;
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_all_sports()
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT * FROM sports");
+    $stmt->execute();
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_registrations_by_userid($user_id)
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT DISTINCT events_id, date FROM eventregistrations WHERE users_id=?");
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+if (isset($_SESSION['profile_update'])) {
+  $noti_message = $_SESSION["profile_update"];
+}elseif (isset($_SESSION['register_success'])) {
+  $noti_message = $_SESSION["register_success"];
+}elseif (isset($_SESSION['count-invalid'])) {
+  $noti_message = $_SESSION["count-invalid"];
+}
+
+$user_data = get_user_by_email($_SESSION['email']);
+$events = get_event_by_date($date);
+$sports = get_all_sports();
+$registrations = get_registrations_by_userid($user_data["id"]);
+
+// var_dump($user);
+// var_dump($sports);
+//var_dump($events);
+
+//var_dump($registrations);
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -34,6 +211,7 @@
   <link rel="stylesheet" href="../../dist/libraries/jquery-ui/jquery-ui.css" />
   <link rel="stylesheet" href="../../dist/libraries/fontawesome-free-6.7.1-web/css/all.min.css" />
   <link rel="stylesheet" href="../css/admin.min.css" />
+  <link rel="stylesheet" href="../css/toast.css" />
 </head>
 
 <body>
@@ -51,99 +229,96 @@
                   </button>
                 </div>
               </div>
-              <div class="col-md-4 ms-auto">
-                <!-- Modern Success Alert -->
-                <div class="alert alert-success alert-dismissible fade show d-flex align-items-end ms-auto me-3"
-                  role="alert">
-                  <i class="fas fa-check-circle fa-2x text-success"></i>
-                  <div class="alert-content flex-grow-1 mx-3">
-                    You successfully read this important alert message.
+            </div>
+          </div>
+          <form action="profile.php" method="POST">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="hidden" name="id" value="<?php echo $user_data['id'] ?>" />
+                    <input type="text" class="form-control input-full" name="name" id="name" value="<?php echo $user_data['name'] ?>"
+                      placeholder="Enter Your Name" required />
                   </div>
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                    <i class="fas fa-times-circle"></i>
-                  </button>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" class="form-control" name="email" id="email" value="<?php echo $user_data['email'] ?>"
+                      placeholder="Enter Your  Email" required />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" class="form-control input-full" name="phone" maxlength="11" id="phone" value="<?php echo $user_data['phonenumber'] ?>"
+                      placeholder="Enter Your Phone Number" required />
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" name="dob" class="form-control" id="dob" value="<?php echo $user_data['dob'] ?>" required />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="preferedSport">Prefered Sport</label>
+                    <select name="prefer_sport" class="form-select form-control" id="preferedSport" required>
+                      <?php if ($user_data['prefersport'] != null) { ?>
+                        <?php foreach ($sports as $sport) { ?>
+                          <?php if ($sport['id'] == $user_data['prefersport']) { ?>
+                            <option value="<?php echo $sport['id'] ?>" selected><?php echo ucwords($sport['name']) ?></option>
+                          <?php } else { ?>
+                            <option value="<?php echo $sport['id'] ?>"><?php echo ucwords($sport['name']) ?></option>
+                          <?php } ?>
+                        <?php } ?>
+                      <?php } else { ?>
+                        <?php foreach ($sports as $sport) { ?>
+                          <option value="<?php echo $sport['id'] ?>"><?php echo ucwords($sport['name']) ?></option>
+                        <?php } ?>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="skillLevel">Skill Level</label>
+                    <select name="skill_level" class="form-select form-control" id="skillLevel" required>
+                      <?php if ($user_data['skilllevel'] != null) { ?>
+                        <?php foreach ($skill_array as $skilllevel) { ?>
+                          <?php if ($skilllevel == $user_data['skilllevel']) { ?>
+                            <option value="<?php echo $skilllevel ?>" selected><?php echo ucwords($skilllevel) ?></option>
+                          <?php } else { ?>
+                            <option value="<?php echo $skilllevel ?>"><?php echo ucwords($skilllevel) ?></option>
+                          <?php } ?>
+                        <?php } ?>
+                      <?php } else { ?>
+                        <?php foreach ($skill_array as $skilllevel) { ?>
+                          <option value="<?php echo $skilllevel ?>"><?php echo ucwords($skilllevel) ?></option>
+                        <?php } ?>
+                      <?php } ?>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="name">Name</label>
-                  <input type="text" class="form-control input-full" name="name" id="name"
-                    placeholder="Enter Your Name" />
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="email">Email Address</label>
-                  <input type="email" class="form-control" name="email" id="email"
-                    placeholder="Enter Your  Email" />
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="password">Password</label>
-                  <input type="password" class="form-control" name="password" id="password"
-                    placeholder="Password" />
-                </div>
-              </div>
+            <div class="card-action">
+              <button type="submit" name="update_profile" class="btn btn-success">Submit</button>
+              <button type="reset" class="btn btn-danger">Cancel</button>
             </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="phone">Phone</label>
-                  <input type="text" class="form-control input-full" name="phone" id="phone"
-                    placeholder="Enter Your Phone Number" />
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="dob">Date of Birth</label>
-                  <input type="date" name="dob" class="form-control" id="dob" />
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="preferedSport">Prefered Sport</label>
-                  <select class="form-select form-control" id="preferedSport">
-                    <option selected disabled>
-                      Select your prefered sports
-                    </option>
-                    <option>Football</option>
-                    <option>Basketball</option>
-                    <option>Marathon</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="skillLevel">Skill Level</label>
-                  <select class="form-select form-control" id="skillLevel">
-                    <option selected disabled>Select your skill level</option>
-                    <option>Beginner</option>
-                    <option>Amatuer</option>
-                    <option>Master</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card-action">
-            <button class="btn btn-success">Submit</button>
-            <button class="btn btn-danger">Cancel</button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
@@ -166,13 +341,15 @@
             </h4>
 
             <ul id="historyList">
-              <li>
-                <h5 class="text-primary">Annual Sport Day 2024</h5>
-              </li>
-
-              <li>
-                <h5 class="text-primary">Annual Marathon 2024</h5>
-              </li>
+              <?php foreach ($registrations as $registration) {
+                $check_event = get_event($registration['events_id']);
+              ?>
+                <?php if ($check_event['status'] == "finished") { ?>
+                  <li>
+                    <h5 class="text-primary"><?php echo ucwords($check_event['name']); ?></h5>
+                  </li>
+                <?php } ?>
+              <?php } ?>
             </ul>
           </div>
         </div>
@@ -188,41 +365,46 @@
             </div>
           </div>
 
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label for="selectedEvent">Select Event</label>
-                  <select class="form-select form-control" id="selectedEvent">
-                    <option selected disabled>Select event</option>
-                    <option>Football</option>
-                    <option>Basketball</option>
-                    <option>Marathon</option>
-                  </select>
+          <form action="profile.php" method="POST">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <input type="hidden" name="user_id" value="<?php echo $user_data['id'] ?>" />
+                  <div class="form-group">
+                    <label for="selectedEvent">Select Event</label>
+                    <select name="event_id" class="form-select form-control" id="selectedEvent" required>
+                      <?php if (isset($_SESSION['event_id'])) { ?>
+                        <?php foreach ($events as $event) { ?>
+                          <?php if ($event['id'] == $_SESSION['event_id']) { ?>
+                            <option value="<?php echo $event['id'] ?>" selected><?php echo ucwords($event['name']) ?></option>
+                          <?php } else { ?>
+                            <option value="<?php echo $event['id'] ?>"><?php echo ucwords($event['name']) ?></option>
+                          <?php } ?>
+                        <?php } ?>
+                      <?php } else { ?>
+                        <option disabled selected>Select an Event</option>
+                        <?php foreach ($events as $event) { ?>
+                          <option value="<?php echo $event['id'] ?>"><?php echo ucwords($event['name']) ?></option>
+                        <?php } ?>
+                      <?php } ?>
+                    </select>
+                  </div>
                 </div>
-              </div>
 
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="participantName">Name</label>
-                  <input type="text" class="form-control input-full" name="participantName"
-                    id="participantName" placeholder="Enter Your Name" />
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="participantEmail">Email Address</label>
-                  <input type="email" class="form-control" name="participantEmail"
-                    id="participantEmail" placeholder="Enter Your  Email" />
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="participantEmail">Participant Count</label>
+                    <input type="number" class="form-control" name="count" min="1" max="10"
+                      id="participantEmail" placeholder="Enter Participant Count" required />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="card-action">
-            <button class="btn btn-info">Register</button>
-          </div>
+            <div class="card-action">
+              <button type="submit" name="event_register" class="btn btn-info">Register</button>
+            </div>
+          </form>
         </div>
       </div>
 
@@ -242,25 +424,19 @@
                 </h4>
 
                 <ul id="eventList">
-                  <li class="d-flex justify-content-between mb-3">
-                    <h5 class="text-primary">Annual Sport Day 2024</h5>
-                    <button class="btn btn-sm btn-danger cancel-btn">
-                      Cancel
-                    </button>
-                  </li>
-
-                  <li class="d-flex justify-content-between mb-3">
-                    <h5 class="text-primary">Annual Marathon 2024</h5>
-                    <button class="btn btn-sm btn-danger cancel-btn">
-                      Cancel
-                    </button>
-                  </li>
+                  <?php foreach ($registrations as $registration) {
+                    $check_event = get_event($registration['events_id']);
+                  ?>
+                    <?php if ($check_event['status'] == "upcoming") { ?>
+                      <li class="d-flex justify-content-between mb-3">
+                        <h5 class="text-primary"><?php echo ucwords($check_event['name']) ?></h5>
+                        <button class="btn btn-sm btn-danger cancel-btn">
+                          <?php echo date("F j, Y", strtotime($registration['date'])) ?>
+                        </button>
+                      </li>
+                    <?php } ?>
+                  <?php } ?>
                 </ul>
-
-                <p id="cancelMessage" class="text-danger">
-                  To cancel your registrations, click the "Cancel" button next
-                  to an event.
-                </p>
               </div>
             </div>
           </div>
@@ -268,6 +444,38 @@
       </div>
     </div>
   </div>
+
+  <?php if ($noti_message != null) { ?>
+    <div class="toasts actives">
+      <div class="toast-contents">
+        <i class="fas <?php if (isset($_SESSION['count-invalid'])) {
+                        echo "fa-times bg-danger";
+                      } else {
+                        echo "fa-check";
+                      } ?> check"></i>
+        <div class="message">
+          <span class="text text-1">
+            <?php if (isset($_SESSION['count-invalid'])) {
+              echo "Failed";
+            } else {
+              echo "Success";
+            }
+            ?>
+          </span>
+          <span class="text text-2"><?php echo $noti_message ?></span>
+        </div>
+      </div>
+      <i class="fas fa-times closes"></i>
+
+      <div class="progress actives"></div>
+    </div>
+  <?php
+    unset($_SESSION['profile_update']);
+    unset($_SESSION['register_success']);
+    unset($_SESSION['count-invalid']);
+    $noti_message = '';
+  }
+  ?>
 
   <!--   Core JS Files   -->
   <script src="../../dist/libraries/jquery/jquery-3.7.1.min.js"></script>
@@ -291,6 +499,7 @@
 
   <!-- Kaiadmin JS -->
   <script src="../js/admin.min.js"></script>
+  <script src="../js/toast.js"></script>
 
   <script>
     $(document).ready(function() {

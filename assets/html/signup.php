@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['signup_btn'])) {
 
             if ($stmt->execute()) {
                 // session store 
-                $_SESSION['email'] = $name;
+                $_SESSION['email'] = $email;
                 $_SESSION['register_success'] = "Your information are successfully registrated";
 
                 $sql = "UPDATE users SET status=1 WHERE email=?";
