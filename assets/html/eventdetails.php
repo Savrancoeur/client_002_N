@@ -1,3 +1,36 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+if (!isset($_GET['event_id'])) {
+    header("Location:events.php");
+}
+
+function get_event_by_id($event_id)
+{
+    try {
+        $conn = connect();
+        $stmt = $conn->prepare("SELECT * FROM events WHERE id=?");
+        $stmt->execute([$event_id]);
+        return $stmt->fetch();
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
+}
+
+$show_event = get_event_by_id($_GET['event_id']);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -59,23 +92,26 @@
                 </ul>
                 <!-- Login/Register/Profile -->
                 <ul class="navbar-nav ms-auto d-flex align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link btn-login" href="#login">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn-register" href="#register">Register</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
-                            <li><a class="dropdown-item" href="#profile">Profile</a></li>
-                            <li><a class="dropdown-item" href="#settings">Settings</a></li>
-                            <li><a class="dropdown-item" href="#logout">Logout</a></li>
-                        </ul>
-                    </li>
+                    <?php if (!isset($_SESSION['email'])) { ?>
+                        <li class="nav-item">
+                            <a class="nav-link btn-login" href="auth.php">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-register" href="auth.php">Register</a>
+                        </li>
+                    <?php } else { ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><a class="dropdown-item" href="exit.php">Logout</a></li>
+                            </ul>
+                        </li>
+                    <?php } ?>
                 </ul>
             </div>
         </div>
@@ -97,43 +133,49 @@
             <div class="row align-items-center">
                 <!-- Event Details -->
                 <div class="col-md-6 mb-4" data-aos="fade-right" data-aos-delay="300">
-                    <h3 class="event-title">Annual Sports Day 2024</h3>
+                    <h3 class="event-title"><?php echo $show_event['name'] ?></h3>
                     <ul class="event-details">
                         <li data-aos="zoom-in" data-aos-delay="400">
                             <i class="fas fa-calendar-alt text-primary"></i>
-                            <strong>Date:</strong> January 15, 2024
+                            <strong>Date:</strong> <?php echo date("F j, Y", strtotime($show_event['date'])); ?>
                         </li>
                         <li data-aos="zoom-in" data-aos-delay="500">
                             <i class="fas fa-clock text-primary"></i>
-                            <strong>Time:</strong> 10:00 AM - 4:00 PM
+                            <strong>Time:</strong> <?php echo $show_event['time'] ?>
                         </li>
                         <li data-aos="zoom-in" data-aos-delay="600">
                             <i class="fas fa-user-clock text-primary"></i>
-                            <strong>Due Registration:</strong> January 10, 2024
+                            <strong>Due Registration:</strong> <?php echo date("F j, Y", strtotime($show_event['duedate'])); ?>
                         </li>
                         <li data-aos="zoom-in" data-aos-delay="700">
                             <i class="fas fa-users text-primary"></i>
-                            <strong>Participant Limit:</strong> 200 participants
+                            <strong>Participant Limit:</strong> <?php echo $show_event['participantslimit'] ?> participants
                         </li>
                         <li data-aos="zoom-in" data-aos-delay="800">
                             <i class="fas fa-child text-primary"></i>
-                            <strong>Age Limit:</strong> 12-50 years
+                            <strong>Age Limit:</strong> <?php echo ucwords($show_event['agegroup']) ?>
                         </li>
                     </ul>
                 </div>
 
                 <!-- Event Image -->
                 <div class="col-md-6 text-center" data-aos="fade-left" data-aos-delay="400">
-                    <img src="../../dist/img/community.png" alt="Event Details" class="img-fluid rounded shadow-lg"
+                    <img src="../../<?php echo $show_event['image'] ?>" alt="Event Details" class="img-fluid rounded shadow-lg"
                         data-aos="zoom-in" data-aos-delay="500" />
                 </div>
             </div>
 
             <!-- Call to Action -->
             <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="600">
-                <a href="#register-now" class="btn button-5 btn-lg shadow">
-                    Register Now
-                </a>
+                <?php if(isset($_SESSION['email'])) { ?>
+                    <a href="profile.php?event_id=<?php echo $show_event['id'] ?>" class="btn button-5 btn-lg shadow">
+                        Register Now
+                    </a>
+                <?php }else{ ?>
+                    <a href="#" class="btn button-5 btn-lg shadow">
+                        Register Now
+                    </a>
+                <?php } ?>
             </div>
         </div>
     </section>

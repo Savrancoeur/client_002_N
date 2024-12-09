@@ -1,3 +1,19 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -59,23 +75,26 @@
         </ul>
         <!-- Login/Register/Profile -->
         <ul class="navbar-nav ms-auto d-flex align-items-center">
-          <li class="nav-item">
-            <a class="nav-link btn-login" href="#login">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link btn-register" href="#register">Register</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
-              <li><a class="dropdown-item" href="#profile">Profile</a></li>
-              <li><a class="dropdown-item" href="#settings">Settings</a></li>
-              <li><a class="dropdown-item" href="#logout">Logout</a></li>
-            </ul>
-          </li>
+          <?php if (!isset($_SESSION['email'])) { ?>
+            <li class="nav-item">
+              <a class="nav-link btn-login" href="auth.php">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link btn-register" href="auth.php">Register</a>
+            </li>
+          <?php } else { ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><a class="dropdown-item" href="exit.php">Logout</a></li>
+              </ul>
+            </li>
+          <?php } ?>
         </ul>
       </div>
     </div>
@@ -114,7 +133,7 @@
               heart of our community, hosting events, meetings, and training
               sessions.
             </p>
-            <a href="#details" class="btn btn-light btn-lg mt-3">
+            <a href="#" class="btn btn-light btn-lg mt-3">
               Learn More
             </a>
           </div>

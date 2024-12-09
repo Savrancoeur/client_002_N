@@ -1,3 +1,19 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -59,23 +75,26 @@
         </ul>
         <!-- Login/Register/Profile -->
         <ul class="navbar-nav ms-auto d-flex align-items-center">
-          <li class="nav-item">
-            <a class="nav-link btn-login" href="#login">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link btn-register" href="#register">Register</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
-              <li><a class="dropdown-item" href="#profile">Profile</a></li>
-              <li><a class="dropdown-item" href="#settings">Settings</a></li>
-              <li><a class="dropdown-item" href="#logout">Logout</a></li>
-            </ul>
-          </li>
+          <?php if (!isset($_SESSION['email'])) { ?>
+            <li class="nav-item">
+              <a class="nav-link btn-login" href="auth.php">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link btn-register" href="auth.php">Register</a>
+            </li>
+          <?php } else { ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><a class="dropdown-item" href="exit.php">Logout</a></li>
+              </ul>
+            </li>
+          <?php } ?>
         </ul>
       </div>
     </div>
@@ -97,7 +116,8 @@
       <!-- Story Section -->
       <div class="row align-items-center mb-5">
         <div class="col-md-6 mb-5" data-aos="fade-right">
-          <img src="../../dist/img/aboutus/img1.png" class="img-fluid rounded shadow" alt="Our Story" />
+          <img src="../../dist/img/aboutus/img1.png" id="journey_image" class="img-fluid rounded shadow"
+            alt="Our Story" />
         </div>
         <div class="col-md-6" data-aos="fade-left">
           <h3 class="mb-2" style="overflow:hidden">Our Journey</h3>
@@ -107,12 +127,9 @@
             mission is to empower individuals to achieve their best selves,
             both physically and mentally.
           </p>
-          <p>
-            From state-of-the-art facilities to a welcoming community
-            atmosphere, we’re dedicated to making fitness accessible for
-            everyone.
+          <p id="journey_content2">
           </p>
-          <a href="#contact" class="btn button-1 mt-3">Contact Us</a>
+          <a href="contactus.php" class="btn button-1 mt-3">Contact Us</a>
         </div>
       </div>
 
@@ -122,10 +139,8 @@
           <div class="card border-0 shadow-sm h-100 bg-dark text-light">
             <div class="card-body">
               <i class="fas fa-lightbulb fa-3x text-primary mb-3"></i>
-              <h4>Our Vision</h4>
-              <p>
-                To inspire a healthy and active lifestyle for people of all
-                ages through engaging sports programs and fitness activities.
+              <h4 id="vision_title"></h4>
+              <p id="vision_content">
               </p>
             </div>
           </div>
@@ -134,10 +149,8 @@
           <div class="card border-0 shadow-sm h-100 bg-dark text-light">
             <div class="card-body">
               <i class="fas fa-heartbeat fa-3x text-danger mb-3"></i>
-              <h4>Our Mission</h4>
-              <p>
-                To foster community wellness by providing top-tier facilities,
-                expert guidance, and a welcoming environment.
+              <h4 id="mission_title"></h4>
+              <p id="mission_content">
               </p>
             </div>
           </div>
@@ -146,10 +159,8 @@
           <div class="card border-0 shadow-sm h-100 bg-dark text-light">
             <div class="card-body">
               <i class="fas fa-star fa-3x text-warning mb-3"></i>
-              <h4>Our Values</h4>
-              <p>
-                We believe in teamwork, integrity, and continuous improvement
-                as the foundation for personal and community success.
+              <h4 id="values_title"></h4>
+              <p id="values_content">
               </p>
             </div>
           </div>
@@ -164,43 +175,7 @@
           your success.
         </p>
       </div>
-      <div class="row text-center">
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-          <div class="team-member">
-            <img src="../../dist/img/aboutus/trainer1.png" class="img-fluid rounded-circle shadow-sm"
-              alt="Alex Johnson" style="width: 180px; height: 180px; object-fit: cover" />
-            <h5 class="mt-3">Alex Johnson</h5>
-            <p>Head Coach</p>
-            <p class="text-muted">
-              A seasoned coach with over 15 years of experience in training
-              athletes across multiple disciplines.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
-          <div class="team-member">
-            <img src="../../dist/img/aboutus/trainer2.png" class="img-fluid rounded-circle shadow-sm"
-              alt="Sarah Williams" style="width: 180px; height: 180px; object-fit: cover" />
-            <h5 class="mt-3">Sarah Williams</h5>
-            <p>Fitness Trainer</p>
-            <p class="text-muted">
-              Specializes in personalized fitness programs and nutrition
-              guidance for a balanced lifestyle.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-          <div class="team-member">
-            <img src="../../dist/img/aboutus/trainer3.png" class="img-fluid rounded-circle shadow-sm"
-              alt="Michael Lee" style="width: 180px; height: 180px; object-fit: cover" />
-            <h5 class="mt-3">Michael Lee</h5>
-            <p>Yoga Instructor</p>
-            <p class="text-muted">
-              A certified yoga instructor with expertise in mindfulness and
-              flexibility training.
-            </p>
-          </div>
-        </div>
+      <div class="row text-center" id="team_members">
       </div>
 
       <!-- Call to Action -->
@@ -287,6 +262,64 @@
 
   <!-- Custom JS Link -->
   <script src="../js/app.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $.ajax({
+          url: 'about.json', // Path to your JSON file
+          method: 'GET',
+          dataType: 'json'
+        })
+        .done(function(data) {
+          // Populate About Us Section
+          // console.log(data.aboutUs.title);
+          $('#heading_title').text(data.aboutUs.title);
+          $('#heading_desc').text(data.aboutUs.description);
+          $('#journey_title').text(data.aboutUs.journey.title);
+          $('#journey_content1').text(data.aboutUs.journey.content1);
+          $('#journey_content2').text(data.aboutUs.journey.content2);
+          $('#journey_image').attr('src', data.aboutUs.journey.image);
+
+          // Populate Vision, Mission, Values Section
+          $('#vision_title').text(data.visionMissionValues.vision.title);
+          $('#vision_content').text(data.visionMissionValues.vision.content);
+
+          $('#mission_title').text(data.visionMissionValues.mission.title);
+          $('#mission_content').text(data.visionMissionValues.mission.content);
+
+          $('#values_title').text(data.visionMissionValues.values.title);
+          $('#values_content').text(data.visionMissionValues.values.content);
+
+          // Populate Team Section
+          $('#team_title').text(data.team.title);
+          $('#team_desc').text(data.team.subtitle);
+
+          let teamContainer = $('#team_members');
+          data.team.members.forEach(member => {
+            teamContainer.append(`
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+              <div class="team-member">
+                <img src="${member.image}" class="img-fluid rounded-circle shadow-sm"
+                  alt="${member.name}" style="width: 180px; height: 180px; object-fit: cover" />
+                <h5 class="mt-3">${member.name}</h5>
+                <p>${member.role}</p>
+                <p class="text-muted">
+                  ${member.description}
+                </p>
+              </div>
+            </div>
+          `);
+          });
+        })
+        .fail(function(error) {
+          console.error('Error loading JSON:', error);
+          $('#error-message').text('Failed to load data. Please try again later.');
+        });
+    });
+  </script>
+
+
 </body>
 
 </html>

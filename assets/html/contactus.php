@@ -1,3 +1,27 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+$noti_message = "";
+
+if (isset($_SESSION['message_sending_success'])) {
+  $noti_message = $_SESSION['message_sending_success'];
+}
+
+// echo $noti_message;
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,6 +47,7 @@
   <link rel="stylesheet" type="text/css" href="../css/navbar.css" />
   <link rel="stylesheet" type="text/css" href="../css/footer.css" />
   <link rel="stylesheet" type="text/css" href="../css/contactus.css" />
+  <link rel="stylesheet" type="text/css" href="../css/toast.css" />
 </head>
 
 <body>
@@ -59,23 +84,26 @@
         </ul>
         <!-- Login/Register/Profile -->
         <ul class="navbar-nav ms-auto d-flex align-items-center">
-          <li class="nav-item">
-            <a class="nav-link btn-login" href="#login">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link btn-register" href="#register">Register</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
-              <li><a class="dropdown-item" href="#profile">Profile</a></li>
-              <li><a class="dropdown-item" href="#settings">Settings</a></li>
-              <li><a class="dropdown-item" href="#logout">Logout</a></li>
-            </ul>
-          </li>
+          <?php if (!isset($_SESSION['email'])) { ?>
+            <li class="nav-item">
+              <a class="nav-link btn-login" href="auth.php">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link btn-register" href="auth.php">Register</a>
+            </li>
+          <?php } else { ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><a class="dropdown-item" href="exit.php">Logout</a></li>
+              </ul>
+            </li>
+          <?php } ?>
         </ul>
       </div>
     </div>
@@ -243,7 +271,7 @@
             <div class="contact-bg-overlay"></div>
 
             <!-- Contact Form Content -->
-            <form id="contactForm" action="#" method="POST"
+            <form id="contactForm" action="sent_message_function.php" method="POST"
               class="position-relative p-4 rounded text-light">
               <h3 class="text-center mb-4" style="overflow:hidden">Get in Touch</h3>
               <div class="form-row mb-4">
@@ -251,17 +279,17 @@
                 <div class="col-md-6 mb-3 position-relative">
                   <label for="name" class="form-label">Your Name</label>
                   <div class="input-icon-wrapper">
-                    <i class="fas fa-user-circle form-icon "></i>
-                    <input type="text" class="form-control" id="name" placeholder="Enter your name"
-                      required />
+                    <i class="fas fa-user-circle form-icon"></i>
+                    <input type="text" name="message_username" class="form-control" id="name"
+                      placeholder="Enter your name" required />
                   </div>
                 </div>
                 <!-- Email Field -->
                 <div class="col-md-6 mb-3 position-relative">
                   <label for="email" class="form-label">Your Email</label>
                   <div class="input-icon-wrapper">
-                    <i class="fas fa-envelope form-icon "></i>
-                    <input type="email" class="form-control" id="email"
+                    <i class="fas fa-envelope form-icon"></i>
+                    <input type="email" name="message_useremail" class="form-control" id="email"
                       placeholder="Enter your email" required />
                   </div>
                 </div>
@@ -271,9 +299,9 @@
               <div class="form-row mb-4">
                 <div class="col-md-12">
                   <label for="message" class="form-label">Your Message</label>
-                  <div class="input-icon-wrapper position-relative">
-                    <i class="fas fa-comment-dots form-icon position-absolute"></i>
-                    <textarea class="form-control pl-5" id="message" rows="3"
+                  <div class="input-icon-wrapper">
+                    <i class="fas fa-comment-dots form-icon"></i>
+                    <textarea class="form-control" name="message_content" id="message" rows="3"
                       placeholder="Enter your message" required></textarea>
                   </div>
                 </div>
@@ -281,7 +309,8 @@
 
 
               <!-- Submit Button -->
-              <button type="submit" class="btn button-3 btn-lg btn-block shadow-lg">
+              <button type="submit" name="contact_message_sent"
+                class="btn button-3 btn-lg btn-block shadow-lg">
                 Send Message
               </button>
             </form>
@@ -342,6 +371,26 @@
   </footer>
   <!-- Footer Section -->
 
+  <?php if ($noti_message != null) { ?>
+    <div class="toasts actives">
+      <div class="toast-contents">
+        <i class="fas fa-check check"></i>
+
+        <div class="message">
+          <span class="text text-1">Success</span>
+          <span class="text text-2"><?php echo $noti_message ?></span>
+        </div>
+      </div>
+      <i class="fas fa-times closes"></i>
+
+      <div class="progress actives"></div>
+    </div>
+  <?php
+    unset($_SESSION['message_sending_success']);
+    $noti_message = '';
+  }
+  ?>
+
   <!-- AOS Library JS Link -->
   <script src="../../dist/libraries/aos/aos.js"></script>
   <script>
@@ -362,6 +411,7 @@
 
   <!-- Custom JS Link -->
   <script src="../js/app.js"></script>
+  <script src="../js/toast.js"></script>
 </body>
 
 </html>

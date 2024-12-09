@@ -1,3 +1,124 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+// making default time zone
+date_default_timezone_set("Asia/Yangon");
+
+$date = date("Y-m-d");
+$newdate = date('Y-m-d', strtotime($date . '+1 days'));
+
+$noti_message = "";
+$sports = null;
+$locations = null;
+$show_events = null;
+$filter = false;
+
+function get_all_sports()
+{
+  try {
+    $conn = connect();
+    $sql = "SELECT * FROM sports";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_sport_by_id($id)
+{
+  try {
+    $conn = connect();
+    $sql = "SELECT * FROM sports WHERE id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$id]);
+    return $stmt->fetch();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_unique_event_locations()
+{
+  try {
+    $conn = connect();
+    $sql = "SELECT DISTINCT location FROM events ORDER BY location;";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["filter_event"])) {
+  $filter = true;
+  $filter_column_array = [];
+  $filter_value_array = [];
+  if (isset($_POST["filter_date"])) {
+    array_push($filter_column_array, 'date');
+    array_push($filter_value_array, $_POST["filter_date"]);
+  }
+  if ($_POST["filter_sport"] != 0) {
+    array_push($filter_column_array, 'sports_id');
+    array_push($filter_value_array, $_POST["filter_sport"]);
+  }
+  if ($_POST["filter_location"] != 0) {
+    array_push($filter_column_array, 'location');
+    array_push($filter_value_array, $_POST["filter_location"]);
+  }
+  if ($_POST["filter_agegroup"] != 0) {
+    array_push($filter_column_array, 'agegroup');
+    array_push($filter_value_array, $_POST["filter_agegroup"]);
+  }
+  //    var_dump($filer_column_array);
+  //    var_dump($filter_value_array);
+
+  try {
+    $conn = connect();
+    $sql = 'SELECT * FROM events WHERE ';
+    for ($i = 0; $i < count($filter_column_array); $i++) {
+      if ($i == count($filter_column_array) - 1) {
+        $sql .= $filter_column_array[$i] . "=?";
+      } else {
+        $sql .= $filter_column_array[$i] . "=? AND ";
+      }
+    }
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($filter_value_array);
+    $show_events = $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+if (isset($_SESSION['login_success'])) {
+  $noti_message = $_SESSION['login_success'];
+} elseif (isset($_SESSION['register_success'])) {
+  $noti_message = $_SESSION['register_success'];
+}
+
+$sports = get_all_sports();
+$locations = get_unique_event_locations();
+// var_dump($locations);
+//echo $newdate;
+// var_dump($showevents);
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,6 +144,8 @@
   <link rel="stylesheet" type="text/css" href="../css/navbar.css" />
   <link rel="stylesheet" type="text/css" href="../css/footer.css" />
   <link rel="stylesheet" type="text/css" href="../css/index.css" />
+  <link rel="stylesheet" type="text/css" href="../css/events.css" />
+  <link rel="stylesheet" type="text/css" href="../css/toast.css" />
 </head>
 
 <body>
@@ -59,23 +182,26 @@
         </ul>
         <!-- Login/Register/Profile -->
         <ul class="navbar-nav ms-auto d-flex align-items-center">
-          <li class="nav-item">
-            <a class="nav-link btn-login" href="#login">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link btn-register" href="#register">Register</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
-              <li><a class="dropdown-item" href="#profile">Profile</a></li>
-              <li><a class="dropdown-item" href="#settings">Settings</a></li>
-              <li><a class="dropdown-item" href="#logout">Logout</a></li>
-            </ul>
-          </li>
+          <?php if (!isset($_SESSION['email'])) { ?>
+            <li class="nav-item">
+              <a class="nav-link btn-login" href="auth.php">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link btn-register" href="auth.php">Register</a>
+            </li>
+          <?php } else { ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><a class="dropdown-item" href="exit.php">Logout</a></li>
+              </ul>
+            </li>
+          <?php } ?>
         </ul>
       </div>
     </div>
@@ -88,7 +214,7 @@
     <div class="container h-100 d-flex align-items-center">
       <div class="row w-100">
         <div class="col-md-7" data-aos="fade-right">
-          <h1 class="hero-title display-4" style="overflow:hidden">
+          <h1 class="hero-title display-4" style="overflow: hidden;">
             Welcome to<br />
             AUS<b class="text-light"> Sport Club</b>
           </h1>
@@ -97,10 +223,10 @@
           </p>
         </div>
         <div class="col-md-5 text-md-right d-flex flex-column justify-content-center" data-aos="fade-left">
-          <a href="#get-started" class="btn button-2 btn-lg mb-3">
+          <a href="#filter-events" class="btn button-2 btn-lg mb-3">
             Get Started
           </a>
-          <a href="#about" class="btn button-1 btn-lg"> Learn More </a>
+          <a href="aboutus.php" class="btn button-1 btn-lg"> Learn More </a>
         </div>
       </div>
     </div>
@@ -118,55 +244,97 @@
       </div>
 
       <!-- Filter Form -->
-      <form class="filter-form p-4 rounded shadow-lg bg-black" data-aos="fade-up" data-aos-delay="300">
+      <form action="index.php" method="POST" class="filter-form p-4 rounded shadow-lg bg-black" data-aos="fade-up" data-aos-delay="300">
         <div class="row g-4" style="overflow:hidden">
           <!-- Date Filter -->
           <div class="col-md-6">
             <label for="filter-date" class="form-label">Date</label>
-            <input type="date" id="filter-date"
-              class="form-control bg-dark text-light border-primary shadow" placeholder="Select Date" />
+            <input type="date" id="filter-date" name="filter_date" min="<?php echo $newdate ?>"
+              class="form-control bg-dark text-light border-primary shadow" placeholder="Select Date" required />
           </div>
 
           <!-- Sport Filter -->
           <div class="col-md-6">
             <label for="filter-sport" class="form-label">Sport</label>
-            <select id="filter-sport" class="form-select bg-dark text-light border-primary shadow">
-              <option value="" disabled selected>Select Sport</option>
-              <option value="soccer">Soccer</option>
-              <option value="basketball">Basketball</option>
-              <option value="tennis">Tennis</option>
-              <option value="marathon">Marathon</option>
+            <select id="filter-sport" name="filter_sport" class="form-select bg-dark text-light border-primary shadow" required>
+              <option value="0" selected>All Sports Types</option>
+              <?php foreach ($sports as $sport) {
+                echo '<option value="' . $sport['id'] . '">' . $sport['name'] . '</option>';
+              } ?>
             </select>
           </div>
 
           <!-- Location Filter -->
           <div class="col-md-6">
             <label for="filter-location" class="form-label">Location</label>
-            <input type="text" id="filter-location"
-              class="form-control bg-dark text-light border-primary shadow"
-              placeholder="Enter Location" />
+            <select name="filter_location" id="location-selection" class="form-select bg-dark text-light border-primary shadow" required>
+              <option value="0" selected>All Event Location</option>
+              <?php foreach ($locations as $location) {
+                echo '<option value="' . $location['location'] . '">' . ucwords($location['location']) . '</option>';
+              } ?>
+            </select>
           </div>
 
           <!-- Age Group Filter -->
           <div class="col-md-6">
-            <label for="filter-age" class="form-label">Age Group</label>
-            <select id="filter-age" class="form-select bg-dark text-light border-primary shadow">
-              <option value="" disabled selected>Select Age Group</option>
-              <option value="all">All Ages</option>
-              <option value="kids">Kids (5-12)</option>
-              <option value="teens">Teens (13-17)</option>
-              <option value="adults">Adults (18+)</option>
+            <label for="filter" class="form-label">Age Group</label>
+            <select id="filter" name="filter_agegroup" class="form-select bg-dark text-light border-primary shadow" required>
+              <option value="0" selected>All age</option>
+              <option value="child">Child (under 15)</option>
+              <option value="teen">Teen (Between 16 and 23)</option>
+              <option value="adult">Adult (Over 23)</option>
+              <option value="all">No Age Limit</option>
             </select>
           </div>
         </div>
 
         <!-- Submit Button -->
         <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="400">
-          <button type="submit" class="btn button-4 btn-lg shadow">
+          <button type="submit" name="filter_event" class="btn button-4 btn-lg shadow">
             Search Events
           </button>
         </div>
       </form>
+
+      <!-- Filter Result Events Section -->
+      <div class="container mt-5">
+        <?php if ($filter) { ?>
+          <h2 class="section-title text-center" data-aos="fade-up" data-aos-duration="1200">
+            Upcoming Filter Events
+          </h2>
+          <p class="section-subtitle text-center mb-5" data-aos="fade-up" data-aos-delay="200"
+            data-aos-duration="1000">
+            Discover the latest events and stay updated on all upcoming sports
+            activities.
+          </p>
+          <div class="events-grid row g-4">
+            <?php if ($show_events) { ?>
+              <?php foreach ($show_events as $showevent) { ?>
+                <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="1500">
+                  <div class="event-card p-4 text-light rounded shadow-lg">
+                    <div class="event-header">
+                      <img src="../../<?php echo $showevent['image'] ?>" alt="<?php echo $showevent['name'] ?>"
+                        class="img-fluid rounded mb-3" />
+                    </div>
+                    <div class="event-info">
+                      <h4 class="event-title"><?php echo ucwords($showevent['name']) ?></h4>
+                      <p class="event-date"><?php echo date("F j, Y", strtotime($showevent['date'])); ?></p>
+                      <p class="event-location">
+                        <i class="fas fa-map-marker-alt"></i> <?php echo ucwords($showevent['location']) ?>
+                      </p>
+                      <a href="eventdetails.php?event_id=<?php echo $showevent['id'] ?>" class="btn custom-btn-lg">Learn More</a>
+                    </div>
+                  </div>
+                </div>
+              <?php } ?>
+            <?php } else { ?>
+              <div class="col-12">
+                <h5 class="text-center text-white mx-2">The filter events is not found</h5>
+              </div>
+            <?php } ?>
+          </div>
+        <?php } ?>
+      </div>
     </div>
   </section>
   <!-- BG Overlay Section -->
@@ -270,8 +438,29 @@
       <p>&copy; 2024 Your Sports Club. All Rights Reserved.</p>
     </div>
   </footer>
-
   <!-- Footer Section -->
+
+  <?php if ($noti_message != null) { ?>
+    <div class="toasts actives">
+      <div class="toast-contents">
+        <i class="fas fa-check check"></i>
+
+        <div class="message">
+          <span class="text text-1">Success</span>
+          <span class="text text-2"><?php echo $noti_message ?></span>
+        </div>
+      </div>
+      <i class="fas fa-times closes"></i>
+
+      <div class="progress actives"></div>
+    </div>
+  <?php
+    unset($_SESSION['login_success']);
+    unset($_SESSION['register_success']);
+    $noti_message = '';
+  }
+  ?>
+
 
   <!-- AOS Library JS Link -->
   <script src="../../dist/libraries/aos/aos.js"></script>
@@ -293,6 +482,7 @@
 
   <!-- Custom JS Link -->
   <script src="../js/app.js"></script>
+  <script src="../js/toast.js"></script>
 </body>
 
 </html>

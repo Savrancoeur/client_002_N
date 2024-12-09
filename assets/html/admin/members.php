@@ -1,3 +1,111 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("../databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+if (!isset($_SESSION['email'])) {
+  header("Location:../auth.php");
+}
+
+$admin = null;
+$noti_message = '';
+$registrations = null;
+
+
+
+if (isset($_SESSION['login_success'])) {
+  $noti_message = $_SESSION['login_success'];
+}
+
+if (isset($_SESSION['email'])) {
+  $email = $_SESSION['email'];
+  try {
+    $conn = connect();
+    $sql = "SELECT * FROM admins WHERE email = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$email]);
+    $admin = $stmt->fetch();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_unread_message_count()
+{
+  try {
+    $conn = connect();
+    $sql = "SELECT COUNT(*) FROM messages WHERE status = 0";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchColumn();
+    $conn = null;
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_all_users()
+{
+  try {
+    $conn = connect();
+    $sql = "SELECT * FROM users";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_registrations($userid)
+{
+  try {
+    $conn = connect();
+
+    $sql = "SELECT * FROM eventregistrations     WHERE users_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$userid]);
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_eventname($id)
+{
+  try {
+    $conn = connect();
+    $sql = "SELECT name FROM events WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$id]);
+    return $stmt->fetch();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+$unread_message_count = get_unread_message_count();
+$users = get_all_users();
+
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["userid"])) {
+  $userid = $_GET["userid"];
+  $registrations = get_registrations($userid);
+}
+
+
+
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -63,29 +171,29 @@
       <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
           <ul class="nav nav-secondary">
-            <li class="nav-item active">
-              <a href="./index.php">
+            <li class="nav-item">
+              <a href="index.php">
                 <i class="fas fa-home"></i>
                 <p>Dashboard</p>
               </a>
             </li>
 
             <li class="nav-item">
-              <a href="./events.phpindex.php">
+              <a href="events.php">
                 <i class="fas fa-calendar-alt"></i>
                 <p>Events</p>
               </a>
             </li>
 
-            <li class="nav-item">
-              <a href="./members.phpindex.php">
+            <li class="nav-item active">
+              <a href="members.php">
                 <i class="fas fa-users"></i>
                 <p>Members</p>
               </a>
             </li>
 
             <li class="nav-item">
-              <a href="./messages.phpindex.php">
+              <a href="messages.php">
                 <i class="fas fa-envelope"></i>
                 <p>Messages</p>
               </a>
@@ -102,7 +210,10 @@
           <!-- Logo Header -->
           <div class="logo-header" data-background-color="dark">
             <a href="index.php" class="logo">
-              <img src="assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand"
+              <img
+                src="assets/img/kaiadmin/logo_light.svg"
+                alt="navbar brand"
+                class="navbar-brand"
                 height="20" />
             </a>
             <div class="nav-toggle">
@@ -120,7 +231,8 @@
           <!-- End Logo Header -->
         </div>
         <!-- Navbar Header -->
-        <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+        <nav
+          class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
           <div class="container-fluid">
             <nav
               class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
@@ -130,168 +242,68 @@
                     <i class="fa fa-search search-icon"></i>
                   </button>
                 </div>
-                <input type="text" placeholder="Search ..." class="form-control" />
+                <input
+                  type="text"
+                  placeholder="Search ..."
+                  class="form-control" />
               </div>
             </nav>
 
             <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-              <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
-                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                  aria-expanded="false" aria-haspopup="true">
+              <li
+                class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
+                <a
+                  class="nav-link dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  href="#"
+                  role="button"
+                  aria-expanded="false"
+                  aria-haspopup="true">
                   <i class="fa fa-search"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-search animated fadeIn">
                   <form class="navbar-left navbar-form nav-search">
                     <div class="input-group">
-                      <input type="text" placeholder="Search ..." class="form-control" />
+                      <input
+                        type="text"
+                        placeholder="Search ..."
+                        class="form-control" />
                     </div>
                   </form>
                 </ul>
               </li>
               <li class="nav-item topbar-icon dropdown hidden-caret">
-                <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button"
-                  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fa fa-envelope"></i>
+                <a
+                  class="nav-link"
+                  href="messages.php"
+                  id="notifDropdown">
+                  <i class="fa fa-message"></i>
+                  <?php if ($unread_message_count > 0) {
+                      echo '<span class="notification">';
+                      echo $unread_message_count;
+                      echo '</span>';
+                    } ?>
                 </a>
-                <ul class="dropdown-menu messages-notif-box animated fadeIn"
-                  aria-labelledby="messageDropdown">
-                  <li>
-                    <div class="dropdown-title d-flex justify-content-between align-items-center">
-                      Messages
-                      <a href="#" class="small">Mark all as read</a>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="message-notif-scroll scrollbar-outer">
-                      <div class="notif-center">
-                        <a href="#">
-                          <div class="notif-img">
-                            <img src="assets/img/jm_denis.jpg" alt="Img Profile" />
-                          </div>
-                          <div class="notif-content">
-                            <span class="subject">Jimmy Denis</span>
-                            <span class="block"> How are you ? </span>
-                            <span class="time">5 minutes ago</span>
-                          </div>
-                        </a>
-                        <a href="#">
-                          <div class="notif-img">
-                            <img src="assets/img/chadengle.jpg" alt="Img Profile" />
-                          </div>
-                          <div class="notif-content">
-                            <span class="subject">Chad</span>
-                            <span class="block"> Ok, Thanks ! </span>
-                            <span class="time">12 minutes ago</span>
-                          </div>
-                        </a>
-                        <a href="#">
-                          <div class="notif-img">
-                            <img src="assets/img/mlane.jpg" alt="Img Profile" />
-                          </div>
-                          <div class="notif-content">
-                            <span class="subject">Jhon Doe</span>
-                            <span class="block">
-                              Ready for the meeting today...
-                            </span>
-                            <span class="time">12 minutes ago</span>
-                          </div>
-                        </a>
-                        <a href="#">
-                          <div class="notif-img">
-                            <img src="assets/img/talha.jpg" alt="Img Profile" />
-                          </div>
-                          <div class="notif-content">
-                            <span class="subject">Talha</span>
-                            <span class="block"> Hi, Apa Kabar ? </span>
-                            <span class="time">17 minutes ago</span>
-                          </div>
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <a class="see-all" href="javascript:void(0);">See all messages<i
-                        class="fa fa-angle-right"></i>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <li class="nav-item topbar-icon dropdown hidden-caret">
-                <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button"
-                  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fa fa-bell"></i>
-                  <span class="notification">4</span>
-                </a>
-                <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
-                  <li>
-                    <div class="dropdown-title">
-                      You have 4 new notification
-                    </div>
-                  </li>
-                  <li>
-                    <div class="notif-scroll scrollbar-outer">
-                      <div class="notif-center">
-                        <a href="#">
-                          <div class="notif-icon notif-primary">
-                            <i class="fa fa-user-plus"></i>
-                          </div>
-                          <div class="notif-content">
-                            <span class="block"> New user registered </span>
-                            <span class="time">5 minutes ago</span>
-                          </div>
-                        </a>
-                        <a href="#">
-                          <div class="notif-icon notif-success">
-                            <i class="fa fa-comment"></i>
-                          </div>
-                          <div class="notif-content">
-                            <span class="block">
-                              Rahmad commented on Admin
-                            </span>
-                            <span class="time">12 minutes ago</span>
-                          </div>
-                        </a>
-                        <a href="#">
-                          <div class="notif-img">
-                            <img src="assets/img/profile2.jpg" alt="Img Profile" />
-                          </div>
-                          <div class="notif-content">
-                            <span class="block">
-                              Reza send messages to you
-                            </span>
-                            <span class="time">12 minutes ago</span>
-                          </div>
-                        </a>
-                        <a href="#">
-                          <div class="notif-icon notif-danger">
-                            <i class="fa fa-heart"></i>
-                          </div>
-                          <div class="notif-content">
-                            <span class="block"> Farrah liked Admin </span>
-                            <span class="time">17 minutes ago</span>
-                          </div>
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <a class="see-all" href="javascript:void(0);">See all notifications<i
-                        class="fa fa-angle-right"></i>
-                    </a>
-                  </li>
-                </ul>
               </li>
 
               <li class="nav-item topbar-user dropdown hidden-caret">
-                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#"
+                <a
+                  class="dropdown-toggle profile-pic"
+                  data-bs-toggle="dropdown"
+                  href="#"
                   aria-expanded="false">
                   <div class="avatar-sm">
-                    <img src="../../../dist/img/admin/profile.jpg" alt="..."
-                      class="avatar-img rounded-circle" />
+
+                    <?php if ($admin['profile'] != null) { ?>
+                      <img src="../../../<?php echo $admin['profile'] ?>" alt="<?php echo $admin['name'] ?>" class="avatar-img rounded-circle" />
+                    <?php } else { ?>
+                      <img src="../../../dist/img/admin/profile.jpg" alt="<?php echo $admin['name'] ?>" class="avatar-img rounded-circle" />
+                    <?php } ?>
+
                   </div>
                   <span class="profile-username">
                     <span class="op-7">Hi,</span>
-                    <span class="fw-bold">Admin</span>
+                    <span class="fw-bold"><?php echo ucwords($admin['name']) ?></span>
                   </span>
                 </a>
                 <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -299,13 +311,21 @@
                     <li>
                       <div class="user-box">
                         <div class="avatar-lg">
-                          <img src="../../../dist/img/admin/profile.jpg" alt="image profile"
-                            class="avatar-img rounded" />
+                          <?php if ($admin['profile'] != null) { ?>
+                            <img src="../../../<?php echo $admin['profile'] ?>" alt="<?php echo $admin['name'] ?>" class="avatar-img rounded" />
+                          <?php } else { ?>
+                            <img src="../../../dist/img/admin/profile.jpg" alt="<?php echo $admin['name'] ?>" class="avatar-img rounded" />
+                          <?php } ?>
                         </div>
                         <div class="u-text">
-                          <h4>Admin</h4>
-                          <p class="text-muted">hello@example.com</p>
-                          <a href="../../../dist/img/admin/profile.jpg"
+                          <h4><?php echo ucwords($admin['name']) ?></h4>
+                          <p class="text-muted"><?php echo $admin['email'] ?></p>
+                          <a
+                            <?php if ($admin['profile'] != null) { ?>
+                            href="../../../<?php echo $admin['profile'] ?>"
+                            <?php } else { ?>
+                            href="../../../dist/img/admin/profile.jpg"
+                            <?php } ?>
                             class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                         </div>
                       </div>
@@ -314,7 +334,7 @@
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="#">My Profile</a>
                       <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Logout</a>
+                      <a class="dropdown-item" href="../exit.php">Logout</a>
                     </li>
                   </div>
                 </ul>
@@ -348,209 +368,46 @@
                   </thead>
 
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <p>John Doe</p>
-                        <h6 class="text-muted">johndoe@gmail.com</h6>
-                      </td>
-                      <td>
-                        <button class="btn btn-disabled btn-success">
-                          Admin
-                        </button>
-                      </td>
-                      <td>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="onOffSwitch"
-                            checked />
-                          <label class="form-check-label" for="onOffSwitch">On</label>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="btn-group dropdown">
-                          <button class="btn btn-primary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">
-                            Select Features
+                    <?php foreach ($users as $user) { ?>
+                      <tr>
+                        <td><?php echo $user['id'] ?></td>
+                        <td>
+                          <p><?php echo $user['name'] ?></p>
+                          <h6 class="text-muted"><?php echo $user['email'] ?></h6>
+                        </td>
+                        <td>
+                          <button class="btn btn-disabled btn-danger">
+                            Member
                           </button>
-                          <ul class="dropdown-menu" role="menu">
-                            <li>
-                              <a class="dropdown-item" href="#">View Registration</a>
-                              <a class="dropdown-item" href="#">Watch Profile</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                        <td>
+                          <div class="form-check form-switch">
+                            <?php if ($user['status']) { ?>
+                              <input class="form-check-input" type="checkbox" id="onOffSwitch"
+                                checked />
+                              <label class="form-check-label" for="onOffSwitch">On</label>
+                            <?php } else { ?>
+                              <input class="form-check-input" type="checkbox" id="onOffSwitch" />
+                              <label class="form-check-label" for="onOffSwitch">Off</label>
+                            <?php } ?>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="btn-group dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button"
+                              data-bs-toggle="dropdown">
+                              Select Features
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                              <li>
+                                <a class="dropdown-item" href="members.php?userid=<?php echo $user['id'] ?>">View Registration</a>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    <?php } ?>
 
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <p>John Doe</p>
-                        <h6 class="text-muted">johndoe@gmail.com</h6>
-                      </td>
-                      <td>
-                        <button class="btn btn-disabled btn-danger">
-                          Member
-                        </button>
-                      </td>
-                      <td>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="onOffSwitch"
-                            checked />
-                          <label class="form-check-label" for="onOffSwitch">On</label>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="btn-group dropdown">
-                          <button class="btn btn-primary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">
-                            Select Features
-                          </button>
-                          <ul class="dropdown-menu" role="menu">
-                            <li>
-                              <a class="dropdown-item" href="#">View Registration</a>
-                              <a class="dropdown-item" href="#">Watch Profile</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <p>John Doe</p>
-                        <h6 class="text-muted">johndoe@gmail.com</h6>
-                      </td>
-                      <td>
-                        <button class="btn btn-disabled btn-success">
-                          Admin
-                        </button>
-                      </td>
-                      <td>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="onOffSwitch"
-                            checked />
-                          <label class="form-check-label" for="onOffSwitch">On</label>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="btn-group dropdown">
-                          <button class="btn btn-primary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">
-                            Select Features
-                          </button>
-                          <ul class="dropdown-menu" role="menu">
-                            <li>
-                              <a class="dropdown-item" href="#">View Registration</a>
-                              <a class="dropdown-item" href="#">Watch Profile</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <p>John Doe</p>
-                        <h6 class="text-muted">johndoe@gmail.com</h6>
-                      </td>
-                      <td>
-                        <button class="btn btn-disabled btn-danger">
-                          Member
-                        </button>
-                      </td>
-                      <td>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="onOffSwitch"
-                            checked />
-                          <label class="form-check-label" for="onOffSwitch">On</label>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="btn-group dropdown">
-                          <button class="btn btn-primary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">
-                            Select Features
-                          </button>
-                          <ul class="dropdown-menu" role="menu">
-                            <li>
-                              <a class="dropdown-item" href="#">View Registration</a>
-                              <a class="dropdown-item" href="#">Watch Profile</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <p>John Doe</p>
-                        <h6 class="text-muted">johndoe@gmail.com</h6>
-                      </td>
-                      <td>
-                        <button class="btn btn-disabled btn-success">
-                          Admin
-                        </button>
-                      </td>
-                      <td>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="onOffSwitch"
-                            checked />
-                          <label class="form-check-label" for="onOffSwitch">On</label>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="btn-group dropdown">
-                          <button class="btn btn-primary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">
-                            Select Features
-                          </button>
-                          <ul class="dropdown-menu" role="menu">
-                            <li>
-                              <a class="dropdown-item" href="#">View Registration</a>
-                              <a class="dropdown-item" href="#">Watch Profile</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <p>John Doe</p>
-                        <h6 class="text-muted">johndoe@gmail.com</h6>
-                      </td>
-                      <td>
-                        <button class="btn btn-disabled btn-danger">
-                          Member
-                        </button>
-                      </td>
-                      <td>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="onOffSwitch"
-                            checked />
-                          <label class="form-check-label" for="onOffSwitch">On</label>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="btn-group dropdown">
-                          <button class="btn btn-primary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">
-                            Select Features
-                          </button>
-                          <ul class="dropdown-menu" role="menu">
-                            <li>
-                              <a class="dropdown-item" href="#">View Registration</a>
-                              <a class="dropdown-item" href="#">Watch Profile</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -558,57 +415,47 @@
 
             <div class="row mb-5">
               <div class="card-body">
-                <table class="table table-bordered table-hover table-head-bg-success">
-                  <thead>
-                    <tr>
-                      <th scope="col">Registered ID</th>
-                      <th scope="col">Event Name</th>
-                      <th scope="col">Date</th>
-                    </tr>
-                  </thead>
+                <?php if ($registrations != null && isset($_GET['userid'])) { ?>
+                  <!-- DATA TABLE-->
+                  <table class="table table-bordered table-hover table-head-bg-success">
+                    <thead>
+                      <tr>
+                        <th scope="col">Registered ID</th>
+                        <th scope="col">Event Name</th>
+                        <th scope="col">Date</th>
+                      </tr>
+                    </thead>
 
-                  <tbody>
-                    <tr>
-                      <td>117</td>
-                      <td>
-                        <p>Anniversary Day</p>
-                      </td>
-                      <td>2025-2-12</td>
-                    </tr>
+                    <tbody>
+                      <?php foreach ($registrations as $registration) { ?>
+                        <tr>
+                          <td><?php echo $registration['id'] ?></td>
+                          <td><?php echo ucwords(get_eventname($registration['events_id'])['name']) ?></td>
+                          <td><?php echo $registration['date'] ?></td>
+                        </tr>
+                      <?php } ?>
 
-                    <tr>
-                      <td>117</td>
-                      <td>
-                        <p>Anniversary Day</p>
-                      </td>
-                      <td>2025-2-12</td>
-                    </tr>
-
-                    <tr>
-                      <td>117</td>
-                      <td>
-                        <p>Anniversary Day</p>
-                      </td>
-                      <td>2025-2-12</td>
-                    </tr>
-
-                    <tr>
-                      <td>117</td>
-                      <td>
-                        <p>Anniversary Day</p>
-                      </td>
-                      <td>2025-2-12</td>
-                    </tr>
-
-                    <tr>
-                      <td>117</td>
-                      <td>
-                        <p>Anniversary Day</p>
-                      </td>
-                      <td>2025-2-12</td>
-                    </tr>
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                  <!-- END DATA TABLE-->
+                <?php } elseif ($registrations == null && isset($_GET['userid'])) { ?>
+                  <!-- DATA TABLE-->
+                    <table class="table table-bordered table-hover table-head-bg-success">
+                      <thead>
+                        <tr>
+                          <th>Register ID</th>
+                          <th>Evnent Name</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="3" class="text-center py-5">The registered event is not found </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  <!-- END DATA TABLE-->
+                <?php } ?>
               </div>
             </div>
           </div>

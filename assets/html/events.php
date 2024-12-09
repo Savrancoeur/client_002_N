@@ -1,3 +1,62 @@
+<?php
+
+// to show error codes
+ini_set("display_errors", 1);
+
+// call dbconnection file to use
+require_once("databaseconnection.php");
+
+// creat session if not created
+if (!isset($_SESSION)) {
+  session_start();
+}
+
+function get_upcoming_events()
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT * FROM events WHERE status=? ORDER BY id DESC");
+    $stmt->execute(['upcoming']);
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_finished_events()
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT * FROM events WHERE status=? ORDER BY id DESC");
+    $stmt->execute(['finished']);
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+function get_last_upcoming_events()
+{
+  try {
+    $conn = connect();
+    $stmt = $conn->prepare("SELECT * FROM events WHERE status=? ORDER BY date DESC");
+    $stmt->execute(['upcoming']);
+    return $stmt->fetch();
+  } catch (PDOException $e) {
+    echo $e->getMessage();
+  }
+}
+
+
+$upcoming_events = get_upcoming_events();
+$finished_events = get_finished_events();
+$last_upcoming_event = get_last_upcoming_events();
+// var_dump($last_upcoming_event);
+//var_dump($showevents);
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -59,23 +118,26 @@
         </ul>
         <!-- Login/Register/Profile -->
         <ul class="navbar-nav ms-auto d-flex align-items-center">
-          <li class="nav-item">
-            <a class="nav-link btn-login" href="#login">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link btn-register" href="#register">Register</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
-              <li><a class="dropdown-item" href="#profile">Profile</a></li>
-              <li><a class="dropdown-item" href="#settings">Settings</a></li>
-              <li><a class="dropdown-item" href="#logout">Logout</a></li>
-            </ul>
-          </li>
+          <?php if (!isset($_SESSION['email'])) { ?>
+            <li class="nav-item">
+              <a class="nav-link btn-login" href="auth.php">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link btn-register" href="auth.php">Register</a>
+            </li>
+          <?php } else { ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle profile-dropdown" href="#" id="profileMenu" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="../../dist/img/profile.png" alt="Profile" class="rounded-circle profile-pic" />
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><a class="dropdown-item" href="exit.php">Logout</a></li>
+              </ul>
+            </li>
+          <?php } ?>
         </ul>
       </div>
     </div>
@@ -91,7 +153,7 @@
       </h2>
       <p class="section-subtitle text-center mb-5" data-aos="fade-up" data-aos-delay="200"
         data-aos-duration="1000">
-        Get ready for an unforgettable experience at 2025 Annual Sports Day.
+        Get ready for an unforgettable experience at <?php echo ucwords($last_upcoming_event['name']) ?>.
         Here's everything you need to know.
       </p>
 
@@ -104,7 +166,7 @@
               <i class="fas fa-calendar-alt"></i>
             </div>
             <h4 class="detail-title mb-2">Event Date</h4>
-            <p class="detail-text">February 15 - February 20, 2025</p>
+            <p class="detail-text"><?php echo date('F j, Y', strtotime($last_upcoming_event['date'])); ?></p>
           </div>
         </div>
 
@@ -115,7 +177,7 @@
               <i class="fas fa-map-marker-alt"></i>
             </div>
             <h4 class="detail-title mb-2">Location</h4>
-            <p class="detail-text">Mandalay</p>
+            <p class="detail-text"><?php echo $last_upcoming_event['location'] ?></p>
           </div>
         </div>
 
@@ -126,7 +188,7 @@
               <i class="fas fa-users"></i>
             </div>
             <h4 class="detail-title mb-2">Participants</h4>
-            <p class="detail-text">Over 5,000 athletes from 50+ sports</p>
+            <p class="detail-text">Over <?php echo $last_upcoming_event['participantslimit'] ?> athletes from 50+ sports</p>
           </div>
         </div>
 
@@ -137,14 +199,18 @@
               <i class="fas fa-clock"></i>
             </div>
             <h4 class="detail-title mb-2">Registration Deadline</h4>
-            <p class="detail-text">February 12, 2025</p>
+            <p class="detail-text"><?php echo date('F j, Y', strtotime($last_upcoming_event['date'])); ?></p>
           </div>
         </div>
       </div>
 
       <!-- Call to Action Button -->
       <div class="cta text-center mt-5" data-aos="fade-up" data-aos-delay="700" data-aos-duration="1000">
-        <a href="#" class="btn custom-btn-lg">Register Now</a>
+        <?php if (isset($_SESSION['email'])) { ?>
+          <a href="profile.php?event_id=<?php echo $last_upcoming_event['id'] ?>" class="btn custom-btn-lg">Register Now</a>
+        <?php } else { ?>
+          <a href="#" class="btn custom-btn-lg">Register Now</a>
+        <?php } ?>
       </div>
     </div>
   </section>
@@ -186,88 +252,68 @@
 
       <!-- Events Grid -->
       <div class="events-grid row g-4">
-        <!-- Event Card 1 -->
-        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="1500">
-          <div class="event-card p-4 text-light rounded shadow-lg">
-            <div class="event-header">
-              <img src="../../dist/img/events/event1.png" alt="Event Image 1"
-                class="img-fluid rounded mb-3" />
-            </div>
-            <div class="event-info">
-              <h4 class="event-title">Sports Fiesta 2025</h4>
-              <p class="event-date">March 15 - March 20, 2025</p>
-              <p class="event-location">
-                <i class="fas fa-map-marker-alt"></i> National Sports Arena,
-                City Center
-              </p>
-              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event Card 2 -->
-        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1500">
-          <div class="event-card p-4 text-light rounded shadow-lg">
-            <div class="event-header">
-              <img src="../../dist/img/events/event2.png" alt="Event Image 2"
-                class="img-fluid rounded mb-3" />
-            </div>
-            <div class="event-info">
-              <h4 class="event-title">Marathon Championship</h4>
-              <p class="event-date">April 10 - April 12, 2025</p>
-              <p class="event-location">
-                <i class="fas fa-map-marker-alt"></i> Downtown Stadium
-              </p>
-              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
+        <?php $delay = 300; ?>
+        <?php foreach ($upcoming_events as $showevent) { ?>
+          <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="<?php echo $delay ?>" data-aos-duration="1500">
+            <div class="event-card p-4 text-light rounded shadow-lg">
+              <div class="event-header">
+                <img src="../../<?php echo $showevent['image'] ?>" alt="<?php echo $showevent['name'] ?>"
+                  class="img-fluid rounded mb-3" />
+              </div>
+              <div class="event-info">
+                <h4 class="event-title"><?php echo ucwords($showevent['name']) ?></h4>
+                <p class="event-date"><?php echo date("F j, Y", strtotime($showevent['date'])); ?></p>
+                <p class="event-location">
+                  <i class="fas fa-map-marker-alt"></i> <?php echo ucwords($showevent['location']) ?>
+                </p>
+                <a href="eventdetails.php?event_id=<?php echo $showevent['id'] ?>" class="btn custom-btn-lg">Learn More</a>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- Event Card 3 -->
-        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="500" data-aos-duration="1500">
-          <div class="event-card p-4 text-light rounded shadow-lg">
-            <div class="event-header">
-              <img src="../../dist/img/events/event3.png" alt="Event Image 3"
-                class="img-fluid rounded mb-3" />
-            </div>
-            <div class="event-info">
-              <h4 class="event-title">Basketball Invitational</h4>
-              <p class="event-date">May 1 - May 5, 2025</p>
-              <p class="event-location">
-                <i class="fas fa-map-marker-alt"></i> Basketball Arena, West
-                End
-              </p>
-              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event Card 4 -->
-        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="600" data-aos-duration="1500">
-          <div class="event-card p-4 text-light rounded shadow-lg">
-            <div class="event-header">
-              <img src="../../dist/img/events/event4.png" alt="Event Image 4"
-                class="img-fluid rounded mb-3" />
-            </div>
-            <div class="event-info">
-              <h4 class="event-title">Football League 2025</h4>
-              <p class="event-date">June 5 - June 9, 2025</p>
-              <p class="event-location">
-                <i class="fas fa-map-marker-alt"></i> City Stadium, East End
-              </p>
-              <a href="eventdetails.php" class="btn custom-btn-lg">Learn More</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- View All Button -->
-      <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="700" data-aos-duration="1000">
-        <a href="#" class="btn custom-btn-lg">View All Events</a>
-      </div>
+          <?php $delay += 50; ?>
+        <?php } ?>
     </div>
   </section>
   <!-- Upcoming Events Section -->
+
+  <!-- Finished Events Section -->
+  <section class="upcoming-events section" id="upcoming-events">
+    <div class="container">
+      <!-- Section Title -->
+      <h2 class="section-title text-center" data-aos="fade-up" data-aos-duration="1200">
+        Completed Events
+      </h2>
+      <p class="section-subtitle text-center mb-5" data-aos="fade-up" data-aos-delay="200"
+        data-aos-duration="1000">
+        Review on our all terminated sports
+        activities.
+      </p>
+
+      <!-- Events Grid -->
+      <div class="events-grid row g-4">
+        <?php $delay = 300; ?>
+        <?php foreach ($finished_events as $showevent) { ?>
+          <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="<?php echo $delay ?>" data-aos-duration="1500">
+            <div class="event-card p-4 text-light rounded shadow-lg">
+              <div class="event-header">
+                <img src="../../<?php echo $showevent['image'] ?>" alt="<?php echo $showevent['name'] ?>"
+                  class="img-fluid rounded mb-3" />
+              </div>
+              <div class="event-info">
+                <h4 class="event-title"><?php echo ucwords($showevent['name']) ?></h4>
+                <p class="event-date"><?php echo date("F j, Y", strtotime($showevent['date'])); ?></p>
+                <p class="event-location">
+                  <i class="fas fa-map-marker-alt"></i> <?php echo ucwords($showevent['location']) ?>
+                </p>
+                <a href="eventdetails.php?event_id=<?php echo $showevent['id'] ?>" class="btn custom-btn-lg">Learn More</a>
+              </div>
+            </div>
+          </div>
+          <?php $delay += 50; ?>
+        <?php } ?>
+    </div>
+  </section>
+  <!-- Finished Events Section -->
 
   <!-- Footer Section -->
   <footer class="footer">
