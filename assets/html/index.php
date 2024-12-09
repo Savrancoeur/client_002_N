@@ -214,7 +214,7 @@ $locations = get_unique_event_locations();
     <div class="container h-100 d-flex align-items-center">
       <div class="row w-100">
         <div class="col-md-7" data-aos="fade-right">
-          <h1 class="hero-title display-4">
+          <h1 class="hero-title display-4" style="overflow: hidden;">
             Welcome to<br />
             AUS<b class="text-light"> Sport Club</b>
           </h1>
