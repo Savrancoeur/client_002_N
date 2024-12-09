@@ -87,7 +87,8 @@
     <div class="container">
       <!-- Section Header -->
       <div class="section-header text-center mb-5">
-        <h1 class="text-uppercase text-warning" data-aos="fade-down" data-aos-duration="800">
+        <h1 class="text-uppercase text-warning" style="overflow:hidden" data-aos="fade-down"
+          data-aos-duration="800">
           News & Announcements
         </h1>
         <p class="text-light" data-aos="fade-up" data-aos-duration="800">
@@ -103,7 +104,7 @@
             <img src="../../dist/img/news/img1.png" alt="Featured News" class="img-fluid rounded" />
           </div>
           <div class="col-lg-6" data-aos="fade-left">
-            <h2 class="text-uppercase">
+            <h2 class="text-uppercase" style="overflow:hidden">
               Featured: New Clubhouse Inauguration
             </h2>
             <p class="text-muted">Posted on: November 25, 2024</p>
@@ -129,7 +130,7 @@
               <img src="../../dist/img/news/news1.png" alt="News 1" class="news-image" />
             </div>
             <div class="news-content">
-              <h3 class="news-title text-warning">
+              <h3 class="news-title text-warning" style="overflow:hidden">
                 New Training Facility Launch
               </h3>
               <p class="news-date text-muted">November 10, 2024</p>
@@ -149,7 +150,7 @@
               <img src="../../dist/img/news/news2.png" alt="News 2" class="news-image" />
             </div>
             <div class="news-content">
-              <h3 class="news-title text-warning">Upcoming Winter Camp</h3>
+              <h3 class="news-title text-warning" style="overflow:hidden">Upcoming Winter Camp</h3>
               <p class="news-date text-muted">December 1-15, 2024</p>
               <p class="news-desc">
                 Register now for our annual winter training camp designed for
@@ -167,7 +168,7 @@
               <img src="../../dist/img/news/news3.png" alt="News 3" class="news-image" />
             </div>
             <div class="news-content">
-              <h3 class="news-title text-warning">Annual Sports Day Recap</h3>
+              <h3 class="news-title text-warning" style="overflow:hidden">Annual Sports Day Recap</h3>
               <p class="news-date text-muted">March 20, 2024</p>
               <p class="news-desc">
                 Relive the moments of our exciting Annual Sports Day with
@@ -205,7 +206,7 @@
               <img src="../../dist/img/news/story1.png" alt="Story 1" class="story-image" />
             </div>
             <div class="story-content">
-              <h3 class="story-title text-warning">Champion's Journey</h3>
+              <h3 class="story-title text-warning" style="overflow:hidden">Champion's Journey</h3>
               <p class="story-desc">
                 Meet John, who overcame challenges to become a regional
                 athletics champion, inspiring countless others.
@@ -222,7 +223,7 @@
               <img src="../../dist/img/news/story2.png" alt="Story 2" class="story-image" />
             </div>
             <div class="story-content">
-              <h3 class="story-title text-warning">Rising Star</h3>
+              <h3 class="story-title text-warning" style="overflow:hidden">Rising Star</h3>
               <p class="story-desc">
                 Emma, a young soccer player, shares her journey to excellence
                 and her aspirations for the future.

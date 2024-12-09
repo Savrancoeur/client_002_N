@@ -83,10 +83,10 @@
   <!-- NavBar Section -->
 
   <!-- Event Details Section -->
-  <section class="event-details section" id="event-details">
+  <section class="event-details section" id="event-details" style="overflow:hidden">
     <div class="container">
       <!-- Section Title -->
-      <h2 class="section-title text-center" data-aos="fade-up" data-aos-duration="1200">
+      <h2 class="section-title text-center" style="overflow:hidden" data-aos="fade-up" data-aos-duration="1200">
         Event Details
       </h2>
       <p class="section-subtitle text-center mb-5" data-aos="fade-up" data-aos-delay="200"
@@ -96,7 +96,7 @@
       </p>
 
       <!-- Details Grid -->
-      <div class="details-grid row g-4">
+      <div class="details-grid row g-4" style="overflow:hidden">
         <!-- Event Date -->
         <div class="col-md-6 col-lg-4" data-aos="flip-left" data-aos-delay="300" data-aos-duration="1500">
           <div class="detail-card p-4 text-light rounded shadow-lg">
@@ -154,8 +154,8 @@
   <section id="highlighted-event" class="highlighted-event py-5">
     <div class="overlay"></div>
     <!-- Background overlay -->
-    <div class="container text-center text-light">
-      <h2 class="section-title" data-aos="fade-up">
+    <div class="container text-center text-light" style="overflow:hidden">
+      <h2 class="section-title" style="overflow:hidden" data-aos="fade-up">
         Don't Miss Our Biggest Event!
       </h2>
       <p class="section-description mb-5" data-aos="fade-up" data-aos-delay="200">
@@ -175,7 +175,7 @@
   <section class="upcoming-events section" id="upcoming-events">
     <div class="container">
       <!-- Section Title -->
-      <h2 class="section-title text-center" data-aos="fade-up" data-aos-duration="1200">
+      <h2 class="section-title text-center" style="overflow:hidden" data-aos="fade-up" data-aos-duration="1200">
         Upcoming Events
       </h2>
       <p class="section-subtitle text-center mb-5" data-aos="fade-up" data-aos-delay="200"

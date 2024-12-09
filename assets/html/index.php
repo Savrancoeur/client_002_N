@@ -88,7 +88,7 @@
     <div class="container h-100 d-flex align-items-center">
       <div class="row w-100">
         <div class="col-md-7" data-aos="fade-right">
-          <h1 class="hero-title display-4">
+          <h1 class="hero-title display-4" style="overflow:hidden">
             Welcome to<br />
             AUS<b class="text-light"> Sport Club</b>
           </h1>
@@ -111,7 +111,7 @@
     <div class="container">
       <!-- Section Header -->
       <div class="text-center mb-5" data-aos="fade-up">
-        <h2 class="section-title">Filter Events</h2>
+        <h2 class="section-title" style="overflow:hidden">Filter Events</h2>
         <p class="section-description">
           Find the events that match your interests and schedule.
         </p>
@@ -119,7 +119,7 @@
 
       <!-- Filter Form -->
       <form class="filter-form p-4 rounded shadow-lg bg-black" data-aos="fade-up" data-aos-delay="300">
-        <div class="row g-4">
+        <div class="row g-4" style="overflow:hidden">
           <!-- Date Filter -->
           <div class="col-md-6">
             <label for="filter-date" class="form-label">Date</label>
@@ -173,10 +173,10 @@
 
   <!-- Join Our Community Section -->
   <section id="join-community" class="join-section bg-dark py-5 text-light">
-    <div class="container">
+    <div class="container" style="overflow:hidden">
       <!-- Section Header -->
       <div class="text-center mb-5" data-aos="fade-down" data-aos-delay="200">
-        <h2 class="section-title text-uppercase">Join Our Community</h2>
+        <h2 class="section-title text-uppercase" style="overflow:hidden">Join Our Community</h2>
         <p class="section-description">
           Be part of the AUS Sport Club family and experience the thrill of
           sports and friendship.
@@ -187,7 +187,7 @@
       <div class="row align-items-center">
         <!-- Left Content -->
         <div class="col-md-6 mb-4" data-aos="fade-right" data-aos-delay="300">
-          <h3 class="highlight-title">Why Join Us?</h3>
+          <h3 class="highlight-title" style="overflow:hidden">Why Join Us?</h3>
           <ul class="highlight-list">
             <li data-aos="zoom-in" data-aos-delay="400">
               <i class="fas fa-check-circle text-primary"></i> Access to

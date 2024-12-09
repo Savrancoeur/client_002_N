@@ -87,7 +87,7 @@
     <div class="container">
       <!-- Heading Section -->
       <div class="text-center mb-5" data-aos="fade-up">
-        <h2>About Us</h2>
+        <h2 style="overflow:hidden">About Us</h2>
         <p class="lead">
           Discover our story, meet our team, and explore the values that drive
           our sports club.
@@ -100,7 +100,7 @@
           <img src="../../dist/img/aboutus/img1.png" class="img-fluid rounded shadow" alt="Our Story" />
         </div>
         <div class="col-md-6" data-aos="fade-left">
-          <h3>Our Journey</h3>
+          <h3 class="mb-2" style="overflow:hidden">Our Journey</h3>
           <p>
             Since our founding in 2020, our sports club has been a beacon for
             fitness enthusiasts, aspiring athletes, and families alike. Our
@@ -158,7 +158,7 @@
 
       <!-- Meet Our Team -->
       <div class="text-center mt-5 mb-5" data-aos="fade-up">
-        <h2>Meet Our Team</h2>
+        <h2 style="overflow:hidden">Meet Our Team</h2>
         <p class="lead">
           A group of passionate and experienced professionals dedicated to
           your success.
@@ -205,7 +205,7 @@
 
       <!-- Call to Action -->
       <div class="text-center mt-5" data-aos="fade-up">
-        <h3>Join Us Today!</h3>
+        <h3 style="overflow:hidden">Join Us Today!</h3>
         <p class="lead">
           Be part of our thriving community and take the first step toward
           your fitness goals.

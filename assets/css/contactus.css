@@ -167,9 +167,25 @@ form h3 {
 
 /* Input field wrapper with icons */
 
-.input-icon-wrapper textarea {
-  display: block;
-  margin-top: 100px;
+.input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-icon {
+  position: absolute;
+  left: 10px; /* Adjust the left position */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #888; /* Icon color */
+  pointer-events: none; /* Make icon unclickable */
+}
+
+textarea.form-control {
+  padding-left: 40px; /* Leave space for the icon */
+  resize: none; /* Disable resizing for better design */
 }
 
 .form-icon {

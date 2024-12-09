@@ -87,7 +87,7 @@
     <div class="container">
       <!-- Heading Section -->
       <div class="text-center mb-5" data-aos="fade-up">
-        <h2 class="text-white">Contact Us</h2>
+        <h2 class="text-white" style="overflow:hidden">Contact Us</h2>
         <p class="lead">
           We'd love to hear from you! Whether you have questions, need more
           information, or want to join our club, feel free to reach out.
@@ -144,7 +144,7 @@
         <div class="container">
           <!-- Section Heading -->
           <div class="text-center mb-5" data-aos="fade-up">
-            <h2 class="text-white">Our Programs</h2>
+            <h2 class="text-white" style="overflow:hidden">Our Programs</h2>
             <p class="lead text-muted">
               Explore our range of fitness and wellness programs tailored for
               all ages and fitness levels.
@@ -245,13 +245,13 @@
             <!-- Contact Form Content -->
             <form id="contactForm" action="#" method="POST"
               class="position-relative p-4 rounded text-light">
-              <h3 class="text-center mb-4">Get in Touch</h3>
+              <h3 class="text-center mb-4" style="overflow:hidden">Get in Touch</h3>
               <div class="form-row mb-4">
                 <!-- Name Field -->
                 <div class="col-md-6 mb-3 position-relative">
                   <label for="name" class="form-label">Your Name</label>
                   <div class="input-icon-wrapper">
-                    <i class="fas fa-user-circle form-icon"></i>
+                    <i class="fas fa-user-circle form-icon "></i>
                     <input type="text" class="form-control" id="name" placeholder="Enter your name"
                       required />
                   </div>
@@ -260,7 +260,7 @@
                 <div class="col-md-6 mb-3 position-relative">
                   <label for="email" class="form-label">Your Email</label>
                   <div class="input-icon-wrapper">
-                    <i class="fas fa-envelope form-icon"></i>
+                    <i class="fas fa-envelope form-icon "></i>
                     <input type="email" class="form-control" id="email"
                       placeholder="Enter your email" required />
                   </div>
@@ -269,15 +269,16 @@
 
               <!-- Message Field -->
               <div class="form-row mb-4">
-                <div class="col-md-12 position-relative">
+                <div class="col-md-12">
                   <label for="message" class="form-label">Your Message</label>
-                  <div class="input-icon-wrapper">
-                    <i class="fas fa-comment-dots form-icon"></i>
-                    <textarea class="form-control" id="message" rows="3"
+                  <div class="input-icon-wrapper position-relative">
+                    <i class="fas fa-comment-dots form-icon position-absolute"></i>
+                    <textarea class="form-control pl-5" id="message" rows="3"
                       placeholder="Enter your message" required></textarea>
                   </div>
                 </div>
               </div>
+
 
               <!-- Submit Button -->
               <button type="submit" class="btn button-3 btn-lg btn-block shadow-lg">
