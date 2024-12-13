@@ -6,7 +6,7 @@ function connect()
 {
     $server = "localhost"; // database server name or ip
     $user = "root"; // database user account name
-    $password = "mydbserver2025"; // database account passsword
+    $password = ""; // database account passsword
     $databasename = "aus";  // database name
 
     try {
